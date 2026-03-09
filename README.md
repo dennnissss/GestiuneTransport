@@ -1,4 +1,4 @@
-# 🚛 Gestiune Transport Enterprise v1.0
+# 🚛 Gestiune Transport 
 
 ![C#](https://img.shields.io/badge/C%23-Language-blueviolet)
 ![.NET Core](https://img.shields.io/badge/.NET-Core--LTS-blue)
