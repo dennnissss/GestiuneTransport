@@ -1,23 +1,92 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GestiuneTransport.Models;
 
-class Program
+namespace GestiuneTransport
 {
-    static void Main()
+    class Program
     {
-        // Creare entități
-        Sofer sofer1 = new Sofer(1, "Ion Popescu");
-        Masina masina1 = new Masina("SV-01-ABC", "Volvo FH", 120500);
+        // Lista care ține locul "vectorului de obiecte" (List este varianta modernă și recomandată în C#)
+        static List<Sofer> listaSoferi = new List<Sofer>();
 
-        // Simulare activitate
-        Console.WriteLine($"Inregistram traseu pentru {sofer1.Nume}...");
-        sofer1.AdaugaTraseu("Suceava - Bucuresti", 450);
-        masina1.Kilometraj += 450;
+        static void Main(string[] args)
+        {
+            string optiune;
+            do
+            {
+                Console.WriteLine("\n--- SISTEM GESTIUNE TRANSPORT ---");
+                Console.WriteLine("1. Adauga sofer (Citire tastatura)");
+                Console.WriteLine("2. Afiseaza toti soferii (Afisare vector)");
+                Console.WriteLine("3. Cauta sofer dupa nume (Cautare)");
+                Console.WriteLine("X. Iesire");
+                Console.Write("Alege optiunea: ");
+                optiune = Console.ReadLine().ToUpper();
 
-        // Afisare rezultate
-        Console.WriteLine("\n--- Raport Activitate ---");
-        Console.WriteLine($"Sofer: {sofer1.Nume} | Total KM: {sofer1.TotalKilometriParcursi}");
-        Console.WriteLine($"Trasee efectuate: {string.Join(", ", sofer1.IstoricTrasee)}");
-        Console.WriteLine($"Stare masina: {masina1.ToString()}");
+                switch (optiune)
+                {
+                    case "1": 
+                        AdaugaSofer();
+                        break;
+                    case "2":
+                        AfiseazaSoferi();
+                        break;
+                    case "3":
+                        CautaSofer();
+                        break;
+                }
+            } while (optiune != "X");
+        }
+
+        // 1. Citirea datelor de la tastatura
+        static void AdaugaSofer()
+        {
+            Console.Write("Introduceti ID-ul: ");
+            int id = int.Parse(Console.ReadLine());
+
+            Console.Write("Introduceti numele soferului: ");
+            string nume = Console.ReadLine();
+
+            Sofer s = new Sofer(id, nume);
+
+            // 2. Salvarea datelor intr-un vector (lista) de obiecte
+            listaSoferi.Add(s);
+            Console.WriteLine("Sofer adaugat cu succes!");
+        }
+
+        // 3. Afisarea datelor dintr-un vector de obiecte
+        static void AfiseazaSoferi()
+        {
+            Console.WriteLine("\n--- LISTA SOFERI ---");
+            if (listaSoferi.Count == 0) Console.WriteLine("Nu exista soferi inregistrati.");
+
+            foreach (var s in listaSoferi)
+            {
+                Console.WriteLine($"ID: {s.Id} | Nume: {s.Nume} | KM: {s.TotalKilometriParcursi}");
+            }
+        }
+
+        // 4. Cautarea dupa anumite criterii (Nume)
+        static void CautaSofer()
+        {
+            Console.Write("Introduceti numele cautat: ");
+            string numeCautat = Console.ReadLine();
+
+            // Cautare in lista
+            var rezultat = listaSoferi.Where(s => s.Nume.Contains(numeCautat, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (rezultat.Count > 0)
+            {
+                Console.WriteLine("Soferi gasiti:");
+                foreach (var s in rezultat)
+                {
+                    Console.WriteLine($"ID: {s.Id} | Nume: {s.Nume}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Nu a fost gasit niciun sofer cu acest nume.");
+            }
+        }
     }
 }
