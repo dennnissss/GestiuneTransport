@@ -1,14 +1,23 @@
 using GestiuneTransport.Models;
+using GestiuneTransport.StocareDate;
 
 namespace GestiuneTransport.BusinessLogic;
 
 public class SoferRepository
 {
-    private readonly List<Sofer> _soferi = new();
+    private readonly SoferFileRepository _fileRepo = new();
+    private List<Sofer> _soferi;
+
+    public SoferRepository()
+    {
+        // Incarcare automata din fisier la initializare
+        _soferi = _fileRepo.IncarcaToti();
+    }
 
     public void Adauga(Sofer sofer)
     {
         _soferi.Add(sofer);
+        _fileRepo.SalveazaToti(_soferi);
     }
 
     public List<Sofer> GetAll()

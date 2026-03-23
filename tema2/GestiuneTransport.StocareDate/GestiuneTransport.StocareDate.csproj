@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GestiuneTransport.Models\GestiuneTransport.Models.csproj" />
-    <ProjectReference Include="..\GestiuneTransport.StocareDate\GestiuneTransport.StocareDate.csproj" />
   </ItemGroup>
 
 </Project>

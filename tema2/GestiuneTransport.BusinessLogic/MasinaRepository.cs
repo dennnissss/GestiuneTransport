@@ -1,14 +1,23 @@
 using GestiuneTransport.Models;
+using GestiuneTransport.StocareDate;
 
 namespace GestiuneTransport.BusinessLogic;
 
 public class MasinaRepository
 {
-    private readonly List<Masina> _masini = new();
+    private readonly MasinaFileRepository _fileRepo = new();
+    private List<Masina> _masini;
+
+    public MasinaRepository()
+    {
+        // Incarcare automata din fisier la initializare
+        _masini = _fileRepo.IncarcaToti();
+    }
 
     public void Adauga(Masina masina)
     {
         _masini.Add(masina);
+        _fileRepo.SalveazaToti(_masini);
     }
 
     public List<Masina> GetAll()

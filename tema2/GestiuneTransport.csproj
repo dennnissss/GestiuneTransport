@@ -11,6 +11,7 @@
     <None Include="GestiuneTransport.BusinessLogic\GestiuneTransport.BusinessLogic.csproj" />
     <None Include="GestiuneTransport.ConsoleApp\GestiuneTransport.ConsoleApp.csproj" />
     <None Include="GestiuneTransport.Models\GestiuneTransport.Models.csproj" />
+    <None Include="GestiuneTransport.StocareDate\GestiuneTransport.StocareDate.csproj" />
   </ItemGroup>
 
 </Project>
