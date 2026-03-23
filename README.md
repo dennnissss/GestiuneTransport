@@ -1,19 +1,41 @@
-# Gestiune Companie Transporturi - Proiect PIU
+# 🚛 Gestiune Transport 
 
-Am realizat o aplicație în C# pentru gestionarea activității unei firme de transport, urmărind evidența șoferilor, a mașinilor și a curselor efectuate.
+![C#](https://img.shields.io/badge/C%23-Language-blueviolet)
+![.NET Core](https://img.shields.io/badge/.NET-Core--LTS-blue)
+![License](https://img.shields.io/badge/Status-In%20Development-green)
 
-### Ce am implementat:
-- **Gestiune Resurse:** Evidența șoferilor și a vehiculelor disponibile în parcul auto.
-- **Monitorizare Kilometraj:** Sistem de calcul pentru kilometrii parcurși de fiecare șofer și actualizarea automată a odometrului mașinii.
-- **Istoric Trasee:** Salvarea destinațiilor parcurse pentru a păstra un istoric clar al activității.
-- **Intervale de Lucru:** Posibilitatea de a aloca un șofer pe o anumită mașină într-un interval stabilit.
+Sistem robust de management pentru flote de transport, conceput pentru eficientizarea evidenței personalului și a logisticii interne. Aplicația oferă o interfață rapidă în consolă, optimizată pentru procesarea volumelor de date.
 
-### Structura Claselor:
-- `Sofer`: Reține datele de identificare, kilometrii totali și lista de trasee.
-- `Masina`: Detalii despre vehicul (număr înmatriculare, model, km la bord).
-- `IntervalLucru`: Gestionează asocierea dintre un șofer și o mașină.
+---
 
-### Tehnologii:
-- Visual Studio 2022
-- .NET / C#
-- Git pentru versionare
+### 🚀 Funcționalități Core
+
+* ✅ **Arhitectură Scalabilă**: Gestiune dinamică a entităților de tip șofer folosind colecții generice.
+* 🔍 **Motor de Căutare**: Algoritm de filtrare instantanee (case-insensitive) pentru localizarea rapidă a personalului.
+* 📋 **Sistem de Raportare**: Generarea listelor complete de angajați cu detalii de identificare.
+* 🛡️ **Data Integrity**: Mecanisme de validare a input-ului pentru prevenirea erorilor de sistem.
+
+---
+
+### 🕹️ Consola de Control
+
+Interfața permite următoarele operațiuni rapide:
+
+| Tastă | Comandă | Descriere Funcțională |
+| :--- | :--- | :--- |
+| **1** | `Înregistrare` | Adăugarea unui nou profil de șofer în baza de date. |
+| **2** | `Inventar` | Afișarea tuturor înregistrărilor active din sistem. |
+| **3** | `Interogare` | Căutare avansată după criterii nominative. |
+| **X** | `Exit` | Închiderea sesiunii de lucru și eliberarea resurselor. |
+
+---
+
+### 🛠️ Detalii Tehnice
+
+* **Language**: C# 10.0+
+* **Framework**: .NET 6.0 / 8.0
+* **Data Storage**: In-memory Object Collection
+* **Model**: Programare Orientată pe Obiect (Encapsulation, Models)
+
+---
+*Dezvoltat ca modul central pentru sistemul de logistică GestiuneTransport.*
