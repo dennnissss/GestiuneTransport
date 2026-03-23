@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="GestiuneTransport.BusinessLogic\GestiuneTransport.BusinessLogic.csproj" />
+    <None Include="GestiuneTransport.ConsoleApp\GestiuneTransport.ConsoleApp.csproj" />
+    <None Include="GestiuneTransport.Models\GestiuneTransport.Models.csproj" />
+  </ItemGroup>
+
 </Project>
