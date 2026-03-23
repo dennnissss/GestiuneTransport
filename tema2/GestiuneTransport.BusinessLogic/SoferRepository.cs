@@ -20,6 +20,30 @@ public class SoferRepository
         _fileRepo.SalveazaToti(_soferi);
     }
 
+    // LINQ — .FirstOrDefault() pentru actualizare + persistare in fisier
+    public bool ActualizeazaSofer(int id, string numeNou)
+    {
+        var sofer = _soferi.FirstOrDefault(s => s.Id == id);
+        if (sofer is null)
+            return false;
+
+        sofer.Nume = numeNou;
+        _fileRepo.SalveazaToti(_soferi);
+        return true;
+    }
+
+    // LINQ — .FirstOrDefault() pentru stergere + persistare in fisier
+    public bool StergeSofer(int id)
+    {
+        var sofer = _soferi.FirstOrDefault(s => s.Id == id);
+        if (sofer is null)
+            return false;
+
+        _soferi.Remove(sofer);
+        _fileRepo.SalveazaToti(_soferi);
+        return true;
+    }
+
     public List<Sofer> GetAll()
     {
         return _soferi;
