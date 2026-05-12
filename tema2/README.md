@@ -10,6 +10,7 @@ Folderul contine proiectele sursa ale aplicatiei `GestiuneTransport`.
 
 Interfata WPF include un dashboard, design premium cu fundal texturat discret si formulare CRUD pentru `Masina`, `Sofer` si `Cursa`.
 La curse se pot seta clientul, marfa, prioritatea, pretul pe kilometru si costul estimativ calculat automat.
+Catalogul de masini include marci si modele potrivite pentru transport: TIR-uri, camioane, utilitare si dube.
 
 Pentru build si rulare folositi solutia de la radacina repository-ului:
 

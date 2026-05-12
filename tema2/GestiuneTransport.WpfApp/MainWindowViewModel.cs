@@ -111,14 +111,26 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         return marca switch
         {
-            MarcaMasina.Dacia => new[] { "Logan", "Duster", "Sandero", "Jogger" },
-            MarcaMasina.Volkswagen => new[] { "Golf", "Passat", "Transporter", "Caddy" },
-            MarcaMasina.Ford => new[] { "Focus", "Transit", "Mondeo", "Kuga" },
-            MarcaMasina.Mercedes => new[] { "Sprinter", "Vito", "Actros", "Atego" },
-            MarcaMasina.BMW => new[] { "Seria 3", "Seria 5", "X3", "X5" },
-            MarcaMasina.Renault => new[] { "Clio", "Megane", "Trafic", "Master" },
-            MarcaMasina.Toyota => new[] { "Corolla", "RAV4", "Hilux", "Proace" },
-            MarcaMasina.Hyundai => new[] { "i30", "Tucson", "Santa Fe", "H350" },
+            MarcaMasina.Dacia => new[] { "Dokker Van", "Logan Van", "Duster", "Jogger", "Logan MCV", "Pick-Up" },
+            MarcaMasina.Volkswagen => new[] { "Crafter", "Transporter", "Caddy Cargo", "Caddy Maxi", "Multivan", "Amarok", "LT" },
+            MarcaMasina.Ford => new[] { "Transit", "Transit Custom", "Transit Connect", "Transit Courier", "Ranger", "Tourneo Custom", "F-Max", "Cargo" },
+            MarcaMasina.Mercedes => new[] { "Sprinter", "Vito", "Citan", "Vario", "Atego", "Actros", "Antos", "Arocs", "Econic" },
+            MarcaMasina.BMW => new[] { "X5", "X7", "Seria 5 Touring", "Seria 3 Touring" },
+            MarcaMasina.Renault => new[] { "Master", "Trafic", "Kangoo Van", "Express Van", "Mascott", "Midlum", "Premium", "T", "D", "C", "K" },
+            MarcaMasina.Toyota => new[] { "Proace", "Proace City", "Proace Max", "Hilux", "Land Cruiser", "HiAce", "Dyna" },
+            MarcaMasina.Hyundai => new[] { "H350", "Staria Cargo", "H-1 Cargo", "Porter", "Mighty", "Xcient" },
+            MarcaMasina.Iveco => new[] { "Daily", "Eurocargo", "S-Way", "X-Way", "T-Way", "Stralis", "Trakker" },
+            MarcaMasina.MAN => new[] { "TGE", "TGL", "TGM", "TGS", "TGX", "Lion's City", "CLA" },
+            MarcaMasina.Scania => new[] { "P-Series", "G-Series", "R-Series", "S-Series", "L-Series", "XT", "Super" },
+            MarcaMasina.Volvo => new[] { "FH", "FM", "FMX", "FE", "FL", "VNL", "VNR" },
+            MarcaMasina.DAF => new[] { "LF", "CF", "XF", "XD", "XG", "XG+" },
+            MarcaMasina.Fiat => new[] { "Ducato", "Doblo Cargo", "Talento", "Scudo", "Fiorino", "Fullback" },
+            MarcaMasina.Citroen => new[] { "Berlingo Van", "Jumpy", "Jumper", "SpaceTourer", "Relay" },
+            MarcaMasina.Peugeot => new[] { "Partner", "Expert", "Boxer", "Traveller", "Rifter Van" },
+            MarcaMasina.Opel => new[] { "Combo Cargo", "Vivaro", "Movano", "Zafira Life", "Campo" },
+            MarcaMasina.Nissan => new[] { "NV200", "NV300", "NV400", "Interstar", "Primastar", "Townstar", "Cabstar", "Atleon", "NT400" },
+            MarcaMasina.Isuzu => new[] { "D-Max", "N-Series", "F-Series", "Forward", "Elf" },
+            MarcaMasina.MitsubishiFuso => new[] { "Canter", "eCanter", "Fighter", "Super Great", "Rosa" },
             _ => Array.Empty<string>()
         };
     }

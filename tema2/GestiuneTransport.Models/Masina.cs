@@ -2,24 +2,50 @@ namespace GestiuneTransport.Models;
 
 public enum MarcaMasina
 {
-    Dacia,
-    Volkswagen,
-    Ford,
-    Mercedes,
-    BMW,
-    Renault,
-    Toyota,
-    Hyundai
+    Dacia = 0,
+    Volkswagen = 1,
+    Ford = 2,
+    Mercedes = 3,
+    BMW = 4,
+    Renault = 5,
+    Toyota = 6,
+    Hyundai = 7,
+    Iveco = 8,
+    MAN = 9,
+    Scania = 10,
+    Volvo = 11,
+    DAF = 12,
+    Fiat = 13,
+    Citroen = 14,
+    Peugeot = 15,
+    Opel = 16,
+    Nissan = 17,
+    Isuzu = 18,
+    MitsubishiFuso = 19
 }
 
 public enum Culoare
 {
-    Rosu,
-    Alb,
-    Negru,
-    Gri,
-    Albastru,
-    Verde
+    Rosu = 0,
+    Alb = 1,
+    Negru = 2,
+    Gri = 3,
+    Albastru = 4,
+    Verde = 5,
+    Galben = 6,
+    Portocaliu = 7,
+    Argintiu = 8,
+    AlbPerlat = 9,
+    GriMetalizat = 10,
+    Antracit = 11,
+    Grafit = 12,
+    Bej = 13,
+    Crem = 14,
+    Maro = 15,
+    Visiniu = 16,
+    AlbastruInchis = 17,
+    VerdeInchis = 18,
+    Turcoaz = 19
 }
 
 public enum CombustibilMasina

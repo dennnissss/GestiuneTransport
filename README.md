@@ -21,6 +21,7 @@ Aplicatie C# pentru gestionarea unei firme de transport. Proiectul include model
 - Verificare pentru suprapuneri: aceeasi masina sau acelasi sofer nu poate fi alocat in doua curse in acelasi interval.
 - Design WPF premium: fundal texturat discret, carduri, badge-uri colorate pentru statusuri si mesaje tip toast.
 - Curse cu informatii realiste: client, marfa, prioritate, distanta, pret/km, cost estimativ calculat automat si observatii.
+- Catalog extins pentru flota: marci si modele de TIR, camioane, utilitare, sprintere si dube comerciale.
 - Validare date introduse si marcarea campurilor invalide.
 - Controale WPF folosite: `Menu`, `TabControl`, `Grid`, `StackPanel`, `TextBox`, `ComboBox`, `ListBox`, `CheckBox`, `RadioButton`, `DataGrid`.
 - Binding pentru colectii si texte de stare, de exemplu `ItemsSource="{Binding Soferi}"`, `ItemsSource="{Binding Masini}"`, `ItemsSource="{Binding Curse}"`, `Text="{Binding RezumatCurse}"`.
