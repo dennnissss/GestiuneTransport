@@ -33,6 +33,8 @@ public class CursaRepository
         }
 
         cursa.LocPlecare = cursaActualizata.LocPlecare;
+        cursa.Client = cursaActualizata.Client;
+        cursa.Marfa = cursaActualizata.Marfa;
         cursa.Destinatie = cursaActualizata.Destinatie;
         cursa.DataPlecare = cursaActualizata.DataPlecare;
         cursa.DataSosire = cursaActualizata.DataSosire;
@@ -40,8 +42,11 @@ public class CursaRepository
         cursa.SoferAlocat = cursaActualizata.SoferAlocat;
         cursa.Tip = cursaActualizata.Tip;
         cursa.Status = cursaActualizata.Status;
+        cursa.Prioritate = cursaActualizata.Prioritate;
         cursa.DistantaKm = cursaActualizata.DistantaKm;
+        cursa.PretPerKm = cursaActualizata.PretPerKm;
         cursa.CostEstimativ = cursaActualizata.CostEstimativ;
+        cursa.Observatii = cursaActualizata.Observatii;
 
         _fileRepo.SalveazaToti(_curse);
         return true;

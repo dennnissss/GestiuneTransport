@@ -29,6 +29,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public IReadOnlyList<StatusSofer> StatusuriSofer { get; } = Enum.GetValues<StatusSofer>();
     public IReadOnlyList<TipCursa> TipuriCursa { get; } = Enum.GetValues<TipCursa>();
     public IReadOnlyList<StatusCursa> StatusuriCursa { get; } = Enum.GetValues<StatusCursa>();
+    public IReadOnlyList<PrioritateCursa> PrioritatiCursa { get; } = Enum.GetValues<PrioritateCursa>();
     public IReadOnlyList<int> AniFabricatie { get; } = Enumerable.Range(2000, DateTime.Now.Year - 1999).Reverse().ToList();
 
     public int TotalMasini => _toateMasinile.Count;
@@ -40,6 +41,40 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public int TotalCurse => _toateCursele.Count;
     public int CursePlanificate => _toateCursele.Count(c => c.Status == StatusCursa.Planificata);
     public int CurseActive => _toateCursele.Count(c => c.Status == StatusCursa.InDesfasurare);
+    public int CurseAstazi => _toateCursele.Count(c => c.DataPlecare.Date == DateTime.Today);
+    public double KilometriPlanificati => _toateCursele.Sum(c => c.DistantaKm);
+    public decimal ValoareCurse => _toateCursele.Sum(c => c.CostEstimativ);
+    public string RataDisponibilitate => TotalMasini == 0
+        ? "0%"
+        : $"{(MasiniDisponibile * 100.0 / TotalMasini):N0}%";
+
+    public string UrmatoareaCursaTitlu
+    {
+        get
+        {
+            Cursa? cursa = _toateCursele
+                .Where(c => c.Status is StatusCursa.Planificata or StatusCursa.InDesfasurare)
+                .OrderBy(c => c.DataPlecare)
+                .FirstOrDefault();
+
+            return cursa == null ? "Nicio cursa planificata" : cursa.Ruta;
+        }
+    }
+
+    public string UrmatoareaCursaDetalii
+    {
+        get
+        {
+            Cursa? cursa = _toateCursele
+                .Where(c => c.Status is StatusCursa.Planificata or StatusCursa.InDesfasurare)
+                .OrderBy(c => c.DataPlecare)
+                .FirstOrDefault();
+
+            return cursa == null
+                ? "Adauga o cursa ca sa vezi rapid urmatoarea plecare."
+                : $"{cursa.DataPlecare:dd.MM.yyyy HH:mm} / {cursa.SoferAlocat.Nume} / {cursa.MasinaAlocata.NrInmatriculare}";
+        }
+    }
 
     public string RezumatMasini => Masini.Count == 1
         ? "1 masina afisata"
@@ -298,6 +333,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
         }
 
         cursa.Id = cursaActualizata.Id;
+        cursa.Client = cursaActualizata.Client;
+        cursa.Marfa = cursaActualizata.Marfa;
         cursa.LocPlecare = cursaActualizata.LocPlecare;
         cursa.Destinatie = cursaActualizata.Destinatie;
         cursa.DataPlecare = cursaActualizata.DataPlecare;
@@ -306,8 +343,11 @@ public class MainWindowViewModel : INotifyPropertyChanged
         cursa.SoferAlocat = cursaActualizata.SoferAlocat;
         cursa.Tip = cursaActualizata.Tip;
         cursa.Status = cursaActualizata.Status;
+        cursa.Prioritate = cursaActualizata.Prioritate;
         cursa.DistantaKm = cursaActualizata.DistantaKm;
+        cursa.PretPerKm = cursaActualizata.PretPerKm;
         cursa.CostEstimativ = cursaActualizata.CostEstimativ;
+        cursa.Observatii = cursaActualizata.Observatii;
 
         SalveazaCurse();
         ActualizeazaListaCurse(_toateCursele);
@@ -340,6 +380,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
             string termen = text.Trim();
             rezultate = rezultate.Where(c =>
                 c.Id.ToString().Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.Client.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.Marfa.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
                 c.LocPlecare.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
                 c.Destinatie.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
                 c.MasinaAlocata.NrInmatriculare.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
@@ -380,6 +422,32 @@ public class MainWindowViewModel : INotifyPropertyChanged
             c.Status != StatusCursa.Anulata &&
             c.SoferAlocat.Id == sofer.Id &&
             IntervaleleSeSuprapun(c.DataPlecare, c.DataSosire, plecare, sosire));
+    }
+
+    public void ActualizeazaSelectiiCurse(
+        DateTime? plecare = null,
+        DateTime? sosire = null,
+        int? idIgnorat = null,
+        Masina? masinaCurenta = null,
+        Sofer? soferCurent = null)
+    {
+        IEnumerable<Masina> masini = _toateMasinile
+            .Where(m => m.Status is not StatusMasina.Service and not StatusMasina.Inactiva);
+        IEnumerable<Sofer> soferi = _totiSoferii
+            .Where(s => s.Status is not StatusSofer.Concediu and not StatusSofer.Inactiv);
+
+        if (plecare.HasValue && sosire.HasValue && sosire > plecare)
+        {
+            masini = masini.Where(m =>
+                EsteMasinaDisponibila(m, plecare.Value, sosire.Value, idIgnorat) ||
+                (masinaCurenta != null && m.NrInmatriculare.Equals(masinaCurenta.NrInmatriculare, StringComparison.OrdinalIgnoreCase)));
+            soferi = soferi.Where(s =>
+                EsteSoferDisponibil(s, plecare.Value, sosire.Value, idIgnorat) ||
+                (soferCurent != null && s.Id == soferCurent.Id));
+        }
+
+        ActualizeazaMasiniPentruSelectie(masini);
+        ActualizeazaSoferiPentruSelectie(soferi);
     }
 
     private void SalveazaMasini()
@@ -427,16 +495,24 @@ public class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
-    private void ActualizeazaSelectiiCurse()
+    private void ReincarcaSelectiiCurse()
+    {
+        ActualizeazaSelectiiCurse();
+    }
+
+    private void ActualizeazaMasiniPentruSelectie(IEnumerable<Masina> masini)
     {
         MasiniPentruSelectie.Clear();
-        foreach (Masina masina in _toateMasinile.OrderBy(m => m.NrInmatriculare))
+        foreach (Masina masina in masini.OrderBy(m => m.NrInmatriculare))
         {
             MasiniPentruSelectie.Add(masina);
         }
+    }
 
+    private void ActualizeazaSoferiPentruSelectie(IEnumerable<Sofer> soferi)
+    {
         SoferiPentruSelectie.Clear();
-        foreach (Sofer sofer in _totiSoferii.OrderBy(s => s.Nume))
+        foreach (Sofer sofer in soferi.OrderBy(s => s.Nume))
         {
             SoferiPentruSelectie.Add(sofer);
         }
@@ -453,6 +529,12 @@ public class MainWindowViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(TotalCurse));
         OnPropertyChanged(nameof(CursePlanificate));
         OnPropertyChanged(nameof(CurseActive));
+        OnPropertyChanged(nameof(CurseAstazi));
+        OnPropertyChanged(nameof(KilometriPlanificati));
+        OnPropertyChanged(nameof(ValoareCurse));
+        OnPropertyChanged(nameof(RataDisponibilitate));
+        OnPropertyChanged(nameof(UrmatoareaCursaTitlu));
+        OnPropertyChanged(nameof(UrmatoareaCursaDetalii));
     }
 
     private static bool IntervaleleSeSuprapun(DateTime startA, DateTime sfarsitA, DateTime startB, DateTime sfarsitB)

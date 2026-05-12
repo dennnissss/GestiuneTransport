@@ -8,7 +8,8 @@ Folderul contine proiectele sursa ale aplicatiei `GestiuneTransport`.
 - `GestiuneTransport.ConsoleApp` - interfata consola.
 - `GestiuneTransport.WpfApp` - interfata grafica WPF.
 
-Interfata WPF include un dashboard si formulare CRUD pentru `Masina`, `Sofer` si `Cursa`.
+Interfata WPF include un dashboard, design premium cu fundal texturat discret si formulare CRUD pentru `Masina`, `Sofer` si `Cursa`.
+La curse se pot seta clientul, marfa, prioritatea, pretul pe kilometru si costul estimativ calculat automat.
 
 Pentru build si rulare folositi solutia de la radacina repository-ului:
 

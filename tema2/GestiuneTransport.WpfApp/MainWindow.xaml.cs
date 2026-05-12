@@ -3,6 +3,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Threading;
 using GestiuneTransport.Models;
 
 namespace GestiuneTransport.WpfApp;
@@ -25,6 +26,8 @@ public partial class MainWindow : Window
     private const int CursaTextMaxLength = 60;
     private const double DistantaMinima = 1;
     private const double DistantaMaxima = 100_000;
+    private const decimal PretKmMinim = 0.1m;
+    private const decimal PretKmMaxim = 1_000m;
     private const decimal CostMinim = 0;
     private const decimal CostMaxim = 1_000_000;
 
@@ -32,6 +35,8 @@ public partial class MainWindow : Window
     private readonly Brush _labelInvalidBrush = new SolidColorBrush(Color.FromRgb(180, 45, 45));
     private readonly MainWindowViewModel _viewModel = new();
     private bool _initializareCompleta;
+    private bool _actualizareProgramatica;
+    private DispatcherTimer? _toastTimer;
     private string? _nrInmatriculareEditare;
     private int? _soferIdEditare;
     private int? _cursaIdEditare;
@@ -75,6 +80,7 @@ public partial class MainWindow : Window
         CursaStatusComboBox.ItemsSource = _viewModel.StatusuriCursa;
         CursaStatusFilterComboBox.ItemsSource = _viewModel.StatusuriCursa;
         CursaTipFilterComboBox.ItemsSource = _viewModel.TipuriCursa;
+        PrioritateCursaComboBox.ItemsSource = _viewModel.PrioritatiCursa;
         CursaMasinaComboBox.ItemsSource = _viewModel.MasiniPentruSelectie;
         CursaSoferComboBox.ItemsSource = _viewModel.SoferiPentruSelectie;
     }
@@ -117,6 +123,7 @@ public partial class MainWindow : Window
             _viewModel.AdaugaMasina(masina);
             CurataFormularMasina();
             AfiseazaMesajMasina("Masina a fost adaugata.", esteEroare: false);
+            AfiseazaToast("Masina a fost adaugata.");
             return;
         }
 
@@ -125,6 +132,10 @@ public partial class MainWindow : Window
         AfiseazaMesajMasina(
             actualizat ? "Modificarile au fost salvate." : "Masina selectata nu a fost gasita.",
             esteEroare: !actualizat);
+        if (actualizat)
+        {
+            AfiseazaToast("Masina a fost actualizata.");
+        }
     }
 
     private void StergeMasina_Click(object sender, RoutedEventArgs e)
@@ -135,10 +146,16 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (!ConfirmaStergere("Stergi masina selectata?"))
+        {
+            return;
+        }
+
         bool sters = _viewModel.StergeMasina(_nrInmatriculareEditare);
         if (sters)
         {
             CurataFormularMasina();
+            AfiseazaToast("Masina a fost stearsa.");
         }
 
         AfiseazaMesajMasina(
@@ -334,11 +351,16 @@ public partial class MainWindow : Window
             _viewModel.AdaugaSofer(sofer);
             CurataFormularSofer();
             AfiseazaMesajSofer("Soferul a fost adaugat.", esteEroare: false);
+            AfiseazaToast("Soferul a fost adaugat.");
             return;
         }
 
         bool actualizat = _viewModel.ActualizeazaSofer(_soferIdEditare.Value, sofer);
         AfiseazaMesajSofer(actualizat ? "Modificarile au fost salvate." : "Soferul nu a fost gasit.", esteEroare: !actualizat);
+        if (actualizat)
+        {
+            AfiseazaToast("Soferul a fost actualizat.");
+        }
     }
 
     private void StergeSofer_Click(object sender, RoutedEventArgs e)
@@ -349,10 +371,16 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (!ConfirmaStergere("Stergi soferul selectat?"))
+        {
+            return;
+        }
+
         bool sters = _viewModel.StergeSofer(_soferIdEditare.Value);
         if (sters)
         {
             CurataFormularSofer();
+            AfiseazaToast("Soferul a fost sters.");
         }
 
         AfiseazaMesajSofer(
@@ -502,12 +530,17 @@ public partial class MainWindow : Window
             _viewModel.AdaugaCursa(cursa);
             CurataFormularCursa();
             AfiseazaMesajCursa("Cursa a fost adaugata.", esteEroare: false);
+            AfiseazaToast("Cursa a fost adaugata.");
             return;
         }
 
         bool actualizat = _viewModel.ActualizeazaCursa(_cursaIdEditare.Value, cursa);
         _cursaIdEditare = actualizat ? cursa.Id : _cursaIdEditare;
         AfiseazaMesajCursa(actualizat ? "Modificarile au fost salvate." : "Cursa nu a fost gasita.", esteEroare: !actualizat);
+        if (actualizat)
+        {
+            AfiseazaToast("Cursa a fost actualizata.");
+        }
     }
 
     private void StergeCursa_Click(object sender, RoutedEventArgs e)
@@ -518,10 +551,16 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (!ConfirmaStergere("Stergi cursa selectata?"))
+        {
+            return;
+        }
+
         bool sters = _viewModel.StergeCursa(_cursaIdEditare.Value);
         if (sters)
         {
             CurataFormularCursa();
+            AfiseazaToast("Cursa a fost stearsa.");
         }
 
         AfiseazaMesajCursa(sters ? "Cursa a fost stearsa." : "Cursa nu a fost gasita.", esteEroare: !sters);
@@ -573,7 +612,14 @@ public partial class MainWindow : Window
 
     private void CursaCamp_Changed(object sender, EventArgs e)
     {
+        if (_actualizareProgramatica)
+        {
+            return;
+        }
+
         ResetValidareCursa();
+        ActualizeazaCostEstimativ();
+        ActualizeazaDisponibilitateCursa();
     }
 
     private bool ValideazaCursa(out Cursa cursa)
@@ -590,6 +636,20 @@ public partial class MainWindow : Window
         else if (_viewModel.ExistaCursa(id, _cursaIdEditare))
         {
             MarcheazaInvalid(CursaIdLabel, mesaje, "Exista deja o cursa cu acest ID.");
+            valid = false;
+        }
+
+        string client = ClientTextBox.Text.Trim();
+        if (client.Length < CursaTextMinLength || client.Length > CursaTextMaxLength)
+        {
+            MarcheazaInvalid(ClientLabel, mesaje, $"Clientul trebuie sa aiba intre {CursaTextMinLength} si {CursaTextMaxLength} caractere.");
+            valid = false;
+        }
+
+        string marfa = MarfaTextBox.Text.Trim();
+        if (marfa.Length < CursaTextMinLength || marfa.Length > CursaTextMaxLength)
+        {
+            MarcheazaInvalid(MarfaLabel, mesaje, $"Marfa trebuie sa aiba intre {CursaTextMinLength} si {CursaTextMaxLength} caractere.");
             valid = false;
         }
 
@@ -652,11 +712,26 @@ public partial class MainWindow : Window
             ? TipCursa.Internationala
             : TipCursa.Interna;
 
+        if (PrioritateCursaComboBox.SelectedItem is not PrioritateCursa prioritate)
+        {
+            MarcheazaInvalid(PrioritateLabel, mesaje, "Alege prioritatea cursei.");
+            valid = false;
+            prioritate = PrioritateCursa.Normala;
+        }
+
         if (!CitesteDouble(DistantaTextBox.Text, out double distanta) ||
             distanta < DistantaMinima ||
             distanta > DistantaMaxima)
         {
             MarcheazaInvalid(DistantaLabel, mesaje, $"Distanta trebuie sa fie intre {DistantaMinima:N0} si {DistantaMaxima:N0} km.");
+            valid = false;
+        }
+
+        if (!CitesteDecimal(PretKmTextBox.Text, out decimal pretKm) ||
+            pretKm < PretKmMinim ||
+            pretKm > PretKmMaxim)
+        {
+            MarcheazaInvalid(PretKmLabel, mesaje, $"Pretul pe km trebuie sa fie intre {PretKmMinim:N1} si {PretKmMaxim:N0}.");
             valid = false;
         }
 
@@ -683,7 +758,23 @@ public partial class MainWindow : Window
             }
         }
 
-        cursa = new Cursa(id, plecare, destinatie, dataPlecare, dataSosire, masina, sofer, tip, status, distanta, cost);
+        cursa = new Cursa(
+            id,
+            client,
+            marfa,
+            plecare,
+            destinatie,
+            dataPlecare,
+            dataSosire,
+            masina,
+            sofer,
+            tip,
+            status,
+            prioritate,
+            distanta,
+            pretKm,
+            cost,
+            ObservatiiTextBox.Text.Trim());
 
         if (valid)
         {
@@ -696,30 +787,42 @@ public partial class MainWindow : Window
 
     private void IncarcaCursa(Cursa cursa)
     {
+        _actualizareProgramatica = true;
         _cursaIdEditare = cursa.Id;
         CursaIdTextBox.Text = cursa.Id.ToString(CultureInfo.CurrentCulture);
+        ClientTextBox.Text = cursa.Client;
+        MarfaTextBox.Text = cursa.Marfa;
         LocPlecareTextBox.Text = cursa.LocPlecare;
         DestinatieTextBox.Text = cursa.Destinatie;
         DataPlecareDatePicker.SelectedDate = cursa.DataPlecare.Date;
         OraPlecareTextBox.Text = cursa.DataPlecare.ToString("HH:mm", CultureInfo.InvariantCulture);
         DataSosireDatePicker.SelectedDate = cursa.DataSosire.Date;
         OraSosireTextBox.Text = cursa.DataSosire.ToString("HH:mm", CultureInfo.InvariantCulture);
+        _viewModel.ActualizeazaSelectiiCurse(cursa.DataPlecare, cursa.DataSosire, cursa.Id, cursa.MasinaAlocata, cursa.SoferAlocat);
         CursaMasinaComboBox.SelectedItem = cursa.MasinaAlocata;
         CursaSoferComboBox.SelectedItem = cursa.SoferAlocat;
         CursaStatusComboBox.SelectedItem = cursa.Status;
         CursaInternaRadioButton.IsChecked = cursa.Tip == TipCursa.Interna;
         CursaInternationalaRadioButton.IsChecked = cursa.Tip == TipCursa.Internationala;
+        PrioritateCursaComboBox.SelectedItem = cursa.Prioritate;
         DistantaTextBox.Text = cursa.DistantaKm.ToString(CultureInfo.CurrentCulture);
+        PretKmTextBox.Text = cursa.PretPerKm.ToString(CultureInfo.CurrentCulture);
         CostTextBox.Text = cursa.CostEstimativ.ToString(CultureInfo.CurrentCulture);
+        ObservatiiTextBox.Text = cursa.Observatii;
+        _actualizareProgramatica = false;
+        ActualizeazaDisponibilitateCursa();
         ResetValidareCursa();
     }
 
     private void CurataFormularCursa()
     {
+        _actualizareProgramatica = true;
         _cursaIdEditare = null;
         CurseDataGrid.SelectedIndex = -1;
         CurseQuickListBox.SelectedIndex = -1;
         CursaIdTextBox.Text = _viewModel.GenereazaIdCursa().ToString(CultureInfo.CurrentCulture);
+        ClientTextBox.Clear();
+        MarfaTextBox.Clear();
         LocPlecareTextBox.Clear();
         DestinatieTextBox.Clear();
         DateTime acum = DateTime.Now;
@@ -727,12 +830,19 @@ public partial class MainWindow : Window
         OraPlecareTextBox.Text = acum.AddMinutes(30).ToString("HH:mm", CultureInfo.InvariantCulture);
         DataSosireDatePicker.SelectedDate = acum.Date;
         OraSosireTextBox.Text = acum.AddHours(2).ToString("HH:mm", CultureInfo.InvariantCulture);
+        _viewModel.ActualizeazaSelectiiCurse(acum.AddMinutes(30), acum.AddHours(2));
         CursaMasinaComboBox.SelectedIndex = _viewModel.MasiniPentruSelectie.Count > 0 ? 0 : -1;
         CursaSoferComboBox.SelectedIndex = _viewModel.SoferiPentruSelectie.Count > 0 ? 0 : -1;
         CursaStatusComboBox.SelectedItem = StatusCursa.Planificata;
         CursaInternaRadioButton.IsChecked = true;
-        DistantaTextBox.Text = "1";
+        PrioritateCursaComboBox.SelectedItem = PrioritateCursa.Normala;
+        DistantaTextBox.Text = "100";
+        PretKmTextBox.Text = "4.5";
         CostTextBox.Text = "0";
+        ObservatiiTextBox.Clear();
+        _actualizareProgramatica = false;
+        ActualizeazaCostEstimativ();
+        ActualizeazaDisponibilitateCursa();
     }
 
     private static Cursa CreeazaCursaGoala()
@@ -740,6 +850,111 @@ public partial class MainWindow : Window
         var masina = new Masina(string.Empty, string.Empty, 0, Culoare.Alb, Optiuni.Niciuna);
         var sofer = new Sofer(0, string.Empty);
         return new Cursa(0, string.Empty, string.Empty, DateTime.Now, DateTime.Now.AddHours(1), masina, sofer, TipCursa.Interna, StatusCursa.Planificata, 0, 0);
+    }
+
+    private void ActualizeazaCostEstimativ()
+    {
+        if (!CitesteDouble(DistantaTextBox.Text, out double distanta) ||
+            !CitesteDecimal(PretKmTextBox.Text, out decimal pretKm))
+        {
+            return;
+        }
+
+        decimal factor = 1m;
+        if (CursaInternationalaRadioButton.IsChecked == true)
+        {
+            factor += 0.18m;
+        }
+
+        if (PrioritateCursaComboBox.SelectedItem is PrioritateCursa.Rapida)
+        {
+            factor += 0.12m;
+        }
+        else if (PrioritateCursaComboBox.SelectedItem is PrioritateCursa.Urgenta)
+        {
+            factor += 0.25m;
+        }
+
+        decimal cost = Math.Round((decimal)distanta * pretKm * factor, 2);
+        if (cost < CostMinim || cost > CostMaxim)
+        {
+            return;
+        }
+
+        _actualizareProgramatica = true;
+        CostTextBox.Text = cost.ToString("N2", CultureInfo.CurrentCulture);
+        _actualizareProgramatica = false;
+    }
+
+    private void ActualizeazaDisponibilitateCursa()
+    {
+        if (CursaAvailabilityTextBlock == null)
+        {
+            return;
+        }
+
+        if (!CitesteDataOra(DataPlecareDatePicker, OraPlecareTextBox, out DateTime plecare) ||
+            !CitesteDataOra(DataSosireDatePicker, OraSosireTextBox, out DateTime sosire) ||
+            sosire <= plecare)
+        {
+            CursaAvailabilityTextBlock.Text = "Alege un interval valid ca sa vezi disponibilitatea in timp real.";
+            return;
+        }
+
+        Masina? masinaCurenta = CursaMasinaComboBox.SelectedItem as Masina;
+        Sofer? soferCurent = CursaSoferComboBox.SelectedItem as Sofer;
+
+        _actualizareProgramatica = true;
+        _viewModel.ActualizeazaSelectiiCurse(plecare, sosire, _cursaIdEditare, masinaCurenta, soferCurent);
+
+        if (masinaCurenta != null && _viewModel.MasiniPentruSelectie.Contains(masinaCurenta))
+        {
+            CursaMasinaComboBox.SelectedItem = masinaCurenta;
+        }
+        else
+        {
+            CursaMasinaComboBox.SelectedIndex = _viewModel.MasiniPentruSelectie.Count > 0 ? 0 : -1;
+        }
+
+        if (soferCurent != null && _viewModel.SoferiPentruSelectie.Contains(soferCurent))
+        {
+            CursaSoferComboBox.SelectedItem = soferCurent;
+        }
+        else
+        {
+            CursaSoferComboBox.SelectedIndex = _viewModel.SoferiPentruSelectie.Count > 0 ? 0 : -1;
+        }
+
+        _actualizareProgramatica = false;
+        CursaAvailabilityTextBlock.Text =
+            $"{_viewModel.MasiniPentruSelectie.Count} masini si {_viewModel.SoferiPentruSelectie.Count} soferi disponibili pentru intervalul selectat.";
+    }
+
+    private bool ConfirmaStergere(string mesaj)
+    {
+        return MessageBox.Show(
+            mesaj,
+            "Confirmare stergere",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning) == MessageBoxResult.Yes;
+    }
+
+    private void AfiseazaToast(string mesaj)
+    {
+        ToastTextBlock.Text = mesaj;
+        ToastPanel.Visibility = Visibility.Visible;
+
+        _toastTimer?.Stop();
+        _toastTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(2.7)
+        };
+        _toastTimer.Tick += (_, _) =>
+        {
+            ToastPanel.Visibility = Visibility.Collapsed;
+            _toastTimer?.Stop();
+        };
+        _toastTimer.Start();
     }
 
     private static bool CitesteDouble(string text, out double valoare)
@@ -849,9 +1064,9 @@ public partial class MainWindow : Window
 
         foreach (TextBlock label in new[]
                  {
-                     CursaIdLabel, CursaStatusLabel, LocPlecareLabel, DestinatieLabel, DataPlecareLabel,
+                     CursaIdLabel, CursaStatusLabel, ClientLabel, MarfaLabel, LocPlecareLabel, DestinatieLabel, DataPlecareLabel,
                      OraPlecareLabel, DataSosireLabel, OraSosireLabel, CursaMasinaLabel, CursaSoferLabel,
-                     CursaTipLabel, DistantaLabel, CostLabel
+                     CursaTipLabel, PrioritateLabel, DistantaLabel, PretKmLabel, CostLabel, ObservatiiLabel
                  })
         {
             label.Foreground = _labelNormalBrush;
