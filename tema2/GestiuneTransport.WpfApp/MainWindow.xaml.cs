@@ -11,298 +11,765 @@ public partial class MainWindow : Window
 {
     private const int NrInmatriculareMinLength = 5;
     private const int NrInmatriculareMaxLength = 12;
-    private const int ModelMinLength = 2;
-    private const int ModelMaxLength = 40;
     private const double KilometrajMinim = 0;
     private const double KilometrajMaxim = 2_000_000;
     private const int SoferIdMinim = 1;
     private const int SoferNumeMinLength = 2;
     private const int SoferNumeMaxLength = 50;
+    private const int SoferTelefonMinLength = 7;
+    private const int SoferTelefonMaxLength = 18;
     private const double SoferKmMinim = 0;
     private const double SoferKmMaxim = 5_000_000;
+    private const int CursaIdMinim = 1;
+    private const int CursaTextMinLength = 2;
+    private const int CursaTextMaxLength = 60;
+    private const double DistantaMinima = 1;
+    private const double DistantaMaxima = 100_000;
+    private const decimal CostMinim = 0;
+    private const decimal CostMaxim = 1_000_000;
 
     private readonly Brush _labelNormalBrush = new SolidColorBrush(Color.FromRgb(94, 107, 104));
     private readonly Brush _labelInvalidBrush = new SolidColorBrush(Color.FromRgb(180, 45, 45));
     private readonly MainWindowViewModel _viewModel = new();
-    private ModFormular _modCurent = ModFormular.Adaugare;
+    private bool _initializareCompleta;
     private string? _nrInmatriculareEditare;
+    private int? _soferIdEditare;
+    private int? _cursaIdEditare;
 
     public MainWindow()
     {
         InitializeComponent();
         DataContext = _viewModel;
 
-        CuloareComboBox.ItemsSource = Enum.GetValues<Culoare>();
-        CuloareComboBox.SelectedIndex = -1;
-        SetMod(ModFormular.Adaugare);
+        InitializeazaListeMasini();
+        InitializeazaListeSoferi();
+        InitializeazaListeCurse();
+        CurataFormularMasina();
+        CurataFormularSofer();
+        CurataFormularCursa();
+
+        _initializareCompleta = true;
+    }
+
+    private void InitializeazaListeMasini()
+    {
+        MarcaComboBox.ItemsSource = _viewModel.Marci;
+        CuloareComboBox.ItemsSource = _viewModel.Culori;
+        CombustibilComboBox.ItemsSource = _viewModel.Combustibili;
+        StatusMasinaComboBox.ItemsSource = _viewModel.StatusuriMasina;
+        AnComboBox.ItemsSource = _viewModel.AniFabricatie;
+
+        MasinaMarcaFilterComboBox.ItemsSource = _viewModel.Marci;
+        MasinaStatusFilterComboBox.ItemsSource = _viewModel.StatusuriMasina;
+    }
+
+    private void InitializeazaListeSoferi()
+    {
+        SoferPermisComboBox.ItemsSource = _viewModel.CategoriiPermis;
+        SoferStatusComboBox.ItemsSource = _viewModel.StatusuriSofer;
+        SoferStatusFilterComboBox.ItemsSource = _viewModel.StatusuriSofer;
+    }
+
+    private void InitializeazaListeCurse()
+    {
+        CursaStatusComboBox.ItemsSource = _viewModel.StatusuriCursa;
+        CursaStatusFilterComboBox.ItemsSource = _viewModel.StatusuriCursa;
+        CursaTipFilterComboBox.ItemsSource = _viewModel.TipuriCursa;
+        CursaMasinaComboBox.ItemsSource = _viewModel.MasiniPentruSelectie;
+        CursaSoferComboBox.ItemsSource = _viewModel.SoferiPentruSelectie;
+    }
+
+    private void MarcaComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (MarcaComboBox.SelectedItem is not MarcaMasina marca)
+        {
+            ModelComboBox.ItemsSource = null;
+            return;
+        }
+
+        string? modelCurent = ModelComboBox.SelectedItem as string;
+        var modele = MainWindowViewModel.GetModelePentruMarca(marca);
+        ModelComboBox.ItemsSource = modele;
+
+        if (modelCurent != null && modele.Contains(modelCurent))
+        {
+            ModelComboBox.SelectedItem = modelCurent;
+        }
+        else
+        {
+            ModelComboBox.SelectedIndex = modele.Count > 0 ? 0 : -1;
+        }
+
+        ResetValidareMasina();
     }
 
     private void SalveazaMasina_Click(object sender, RoutedEventArgs e)
     {
-        ResetValidare();
+        ResetValidareMasina();
 
-        if (!ValideazaFormular(out Masina masina))
+        if (!ValideazaMasina(out Masina masina))
         {
             return;
         }
 
-        if (_modCurent == ModFormular.Adaugare)
+        if (_nrInmatriculareEditare == null)
         {
             _viewModel.AdaugaMasina(masina);
-            ReseteazaFormular();
-            AfiseazaMesaj("Masina a fost adaugata cu succes.", esteEroare: false);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_nrInmatriculareEditare))
-        {
-            AfiseazaMesaj("Selectati o masina din lista pentru editare.", esteEroare: true);
+            CurataFormularMasina();
+            AfiseazaMesajMasina("Masina a fost adaugata.", esteEroare: false);
             return;
         }
 
         bool actualizat = _viewModel.ActualizeazaMasina(_nrInmatriculareEditare, masina);
-        AfiseazaMesaj(
-            actualizat ? "Masina a fost actualizata cu succes." : "Masina selectata nu a fost gasita.",
+        _nrInmatriculareEditare = actualizat ? masina.NrInmatriculare : _nrInmatriculareEditare;
+        AfiseazaMesajMasina(
+            actualizat ? "Modificarile au fost salvate." : "Masina selectata nu a fost gasita.",
             esteEroare: !actualizat);
     }
 
-    private void Cauta_Click(object sender, RoutedEventArgs e)
+    private void StergeMasina_Click(object sender, RoutedEventArgs e)
     {
-        _viewModel.CautaDupaNrInmatriculare(SearchTextBox.Text);
-        AfiseazaMesaj("Cautarea dupa numar de inmatriculare a fost aplicata.", esteEroare: false);
-    }
-
-    private void ResetCautare_Click(object sender, RoutedEventArgs e)
-    {
-        SearchTextBox.Clear();
-        _viewModel.ResetCautare();
-        ResetValidare();
-    }
-
-    private void Reset_Click(object sender, RoutedEventArgs e)
-    {
-        ReseteazaFormular();
-        ResetValidare();
-        SetMod(ModFormular.Adaugare);
-    }
-
-    private void SetAdaugare_Click(object sender, RoutedEventArgs e)
-    {
-        SetMod(ModFormular.Adaugare);
-    }
-
-    private void SetEditare_Click(object sender, RoutedEventArgs e)
-    {
-        SetMod(ModFormular.Editare);
-    }
-
-    private void Iesire_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
-    }
-
-    private void ModOperare_Checked(object sender, RoutedEventArgs e)
-    {
-        if (AdaugareRadioButton == null || EditareRadioButton == null)
+        if (_nrInmatriculareEditare == null)
         {
+            AfiseazaMesajMasina("Selecteaza o masina din tabel inainte de stergere.", esteEroare: true);
             return;
         }
 
-        SetMod(AdaugareRadioButton.IsChecked == true ? ModFormular.Adaugare : ModFormular.Editare);
+        bool sters = _viewModel.StergeMasina(_nrInmatriculareEditare);
+        if (sters)
+        {
+            CurataFormularMasina();
+        }
+
+        AfiseazaMesajMasina(
+            sters ? "Masina a fost stearsa." : "Masina nu poate fi stearsa: nu exista sau este folosita intr-o cursa.",
+            esteEroare: !sters);
+    }
+
+    private void MasinaNoua_Click(object sender, RoutedEventArgs e)
+    {
+        CurataFormularMasina();
+        ResetValidareMasina();
     }
 
     private void MasiniDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_modCurent == ModFormular.Editare && MasiniDataGrid.SelectedItem is Masina masina)
+        if (MasiniDataGrid.SelectedItem is Masina masina)
         {
-            MasiniListBox.SelectedItem = masina;
-            IncarcaMasinaInFormular(masina);
+            IncarcaMasina(masina);
         }
     }
 
-    private void MasiniListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void MasinaFiltru_Changed(object sender, EventArgs e)
     {
-        if (MasiniListBox.SelectedItem is not Masina masina)
+        if (!_initializareCompleta)
         {
             return;
         }
 
-        MasiniDataGrid.SelectedItem = masina;
-
-        if (_modCurent == ModFormular.Editare)
-        {
-            IncarcaMasinaInFormular(masina);
-        }
+        MarcaMasina? marca = MasinaMarcaFilterComboBox.SelectedItem is MarcaMasina marcaSelectata ? marcaSelectata : null;
+        StatusMasina? status = MasinaStatusFilterComboBox.SelectedItem is StatusMasina statusSelectat ? statusSelectat : null;
+        _viewModel.FiltreazaMasini(MasinaSearchTextBox.Text, marca, status);
     }
 
-    private void Camp_TextChanged(object sender, TextChangedEventArgs e)
+    private void ResetFiltreMasini_Click(object sender, RoutedEventArgs e)
     {
-        ResetValidare();
+        MasinaSearchTextBox.Clear();
+        MasinaMarcaFilterComboBox.SelectedIndex = -1;
+        MasinaStatusFilterComboBox.SelectedIndex = -1;
+        _viewModel.ResetFiltreMasini();
     }
 
-    private void Camp_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void MasinaCamp_Changed(object sender, EventArgs e)
     {
-        ResetValidare();
+        ResetValidareMasina();
     }
 
-    private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+    private bool ValideazaMasina(out Masina masina)
     {
-        if (string.IsNullOrWhiteSpace(SearchTextBox.Text))
-        {
-            _viewModel.ResetCautare();
-        }
-    }
-
-    private bool ValideazaFormular(out Masina masina)
-    {
-        string nrInmatriculare = NrInmatriculareTextBox.Text.Trim();
-        string model = ModelTextBox.Text.Trim();
+        masina = new Masina(string.Empty, string.Empty, 0, Culoare.Alb, Optiuni.Niciuna);
         var mesaje = new StringBuilder();
+        bool valid = true;
+        string nr = NrInmatriculareTextBox.Text.Trim();
 
-        bool dateValide = true;
-
-        if (nrInmatriculare.Length < NrInmatriculareMinLength ||
-            nrInmatriculare.Length > NrInmatriculareMaxLength)
+        if (nr.Length < NrInmatriculareMinLength || nr.Length > NrInmatriculareMaxLength)
         {
-            MarcheazaInvalid(
-                NrInmatriculareLabel,
-                mesaje,
-                $"Numarul de inmatriculare trebuie sa aiba intre {NrInmatriculareMinLength} si {NrInmatriculareMaxLength} caractere.");
-            dateValide = false;
+            MarcheazaInvalid(NrInmatriculareLabel, mesaje, $"Numarul de inmatriculare trebuie sa aiba intre {NrInmatriculareMinLength} si {NrInmatriculareMaxLength} caractere.");
+            valid = false;
+        }
+        else if (_viewModel.ExistaNrInmatriculare(nr, _nrInmatriculareEditare))
+        {
+            MarcheazaInvalid(NrInmatriculareLabel, mesaje, "Exista deja o masina cu acest numar.");
+            valid = false;
         }
 
-        if (_modCurent == ModFormular.Adaugare && _viewModel.ExistaNrInmatriculare(nrInmatriculare))
+        if (MarcaComboBox.SelectedItem is not MarcaMasina marca)
         {
-            MarcheazaInvalid(NrInmatriculareLabel, mesaje, "Exista deja o masina cu acest numar de inmatriculare.");
-            dateValide = false;
+            MarcheazaInvalid(MarcaLabel, mesaje, "Alege marca masinii.");
+            valid = false;
+            marca = MarcaMasina.Dacia;
         }
 
-        if (model.Length < ModelMinLength || model.Length > ModelMaxLength)
+        if (ModelComboBox.SelectedItem is not string model || string.IsNullOrWhiteSpace(model))
         {
-            MarcheazaInvalid(
-                ModelLabel,
-                mesaje,
-                $"Modelul trebuie sa aiba intre {ModelMinLength} si {ModelMaxLength} caractere.");
-            dateValide = false;
+            MarcheazaInvalid(ModelLabel, mesaje, "Alege modelul masinii.");
+            valid = false;
+            model = string.Empty;
         }
 
-        if (!IncearcaCitireKilometraj(out double kilometraj) ||
+        if (AnComboBox.SelectedItem is not int an)
+        {
+            MarcheazaInvalid(AnLabel, mesaje, "Alege anul fabricatiei.");
+            valid = false;
+            an = DateTime.Now.Year;
+        }
+
+        if (!CitesteDouble(KilometrajTextBox.Text, out double kilometraj) ||
             kilometraj < KilometrajMinim ||
             kilometraj > KilometrajMaxim)
         {
-            MarcheazaInvalid(
-                KilometrajLabel,
-                mesaje,
-                $"Kilometrajul trebuie sa fie un numar intre {KilometrajMinim:N0} si {KilometrajMaxim:N0}.");
-            dateValide = false;
+            MarcheazaInvalid(KilometrajLabel, mesaje, $"Kilometrajul trebuie sa fie intre {KilometrajMinim:N0} si {KilometrajMaxim:N0}.");
+            valid = false;
         }
 
-        Culoare culoare = default;
-        if (CuloareComboBox.SelectedItem is Culoare culoareSelectata)
+        if (CuloareComboBox.SelectedItem is not Culoare culoare)
         {
-            culoare = culoareSelectata;
+            MarcheazaInvalid(CuloareLabel, mesaje, "Alege culoarea.");
+            valid = false;
+            culoare = Culoare.Alb;
         }
-        else
+
+        if (CombustibilComboBox.SelectedItem is not CombustibilMasina combustibil)
         {
-            MarcheazaInvalid(CuloareLabel, mesaje, "Selectati o culoare pentru masina.");
-            dateValide = false;
+            MarcheazaInvalid(CombustibilLabel, mesaje, "Alege combustibilul.");
+            valid = false;
+            combustibil = CombustibilMasina.Diesel;
         }
 
-        masina = new Masina(nrInmatriculare, model, kilometraj, culoare, CitesteOptiuniSelectate());
+        if (StatusMasinaComboBox.SelectedItem is not StatusMasina status)
+        {
+            MarcheazaInvalid(StatusMasinaLabel, mesaje, "Alege statusul.");
+            valid = false;
+            status = StatusMasina.Disponibila;
+        }
 
-        if (dateValide)
+        masina = new Masina(nr, marca, model, an, kilometraj, culoare, combustibil, status, CitesteOptiuni());
+
+        if (valid)
         {
             return true;
         }
 
-        ErrorTextBlock.Text = mesaje.ToString().TrimEnd();
-        ErrorPanel.Visibility = Visibility.Visible;
+        AfiseazaMesajMasina(mesaje.ToString().TrimEnd(), esteEroare: true);
         return false;
     }
 
-    private bool IncearcaCitireKilometraj(out double kilometraj)
-    {
-        return double.TryParse(KilometrajTextBox.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out kilometraj) ||
-               double.TryParse(KilometrajTextBox.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out kilometraj);
-    }
-
-    private Optiuni CitesteOptiuniSelectate()
+    private Optiuni CitesteOptiuni()
     {
         Optiuni optiuni = Optiuni.Niciuna;
 
-        if (AerConditionatCheckBox.IsChecked == true)
-        {
-            optiuni |= Optiuni.AerConditionat;
-        }
-
-        if (NavigatieCheckBox.IsChecked == true)
-        {
-            optiuni |= Optiuni.Navigatie;
-        }
-
-        if (SenzoriParcareCheckBox.IsChecked == true)
-        {
-            optiuni |= Optiuni.SenzoriParcare;
-        }
-
-        if (ScauneIncalziteCheckBox.IsChecked == true)
-        {
-            optiuni |= Optiuni.ScauneIncalzite;
-        }
+        if (AerConditionatCheckBox.IsChecked == true) optiuni |= Optiuni.AerConditionat;
+        if (NavigatieCheckBox.IsChecked == true) optiuni |= Optiuni.Navigatie;
+        if (SenzoriParcareCheckBox.IsChecked == true) optiuni |= Optiuni.SenzoriParcare;
+        if (ScauneIncalziteCheckBox.IsChecked == true) optiuni |= Optiuni.ScauneIncalzite;
+        if (CutieAutomataCheckBox.IsChecked == true) optiuni |= Optiuni.CutieAutomata;
+        if (CameraMarsarierCheckBox.IsChecked == true) optiuni |= Optiuni.CameraMarsarier;
 
         return optiuni;
     }
 
-    private void IncarcaMasinaInFormular(Masina masina)
+    private void IncarcaMasina(Masina masina)
     {
         _nrInmatriculareEditare = masina.NrInmatriculare;
         NrInmatriculareTextBox.Text = masina.NrInmatriculare;
-        ModelTextBox.Text = masina.Model;
+        MarcaComboBox.SelectedItem = masina.Marca;
+        ModelComboBox.ItemsSource = MainWindowViewModel.GetModelePentruMarca(masina.Marca);
+        ModelComboBox.SelectedItem = masina.Model;
+        AnComboBox.SelectedItem = masina.AnFabricatie;
         KilometrajTextBox.Text = masina.Kilometraj.ToString(CultureInfo.CurrentCulture);
         CuloareComboBox.SelectedItem = masina.Culoare;
+        CombustibilComboBox.SelectedItem = masina.Combustibil;
+        StatusMasinaComboBox.SelectedItem = masina.Status;
         AerConditionatCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.AerConditionat);
         NavigatieCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.Navigatie);
         SenzoriParcareCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.SenzoriParcare);
         ScauneIncalziteCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.ScauneIncalzite);
-        ResetValidare();
+        CutieAutomataCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.CutieAutomata);
+        CameraMarsarierCheckBox.IsChecked = masina.Optiuni.HasFlag(Optiuni.CameraMarsarier);
+        ResetValidareMasina();
     }
 
-    private void SetMod(ModFormular mod)
+    private void CurataFormularMasina()
     {
-        _modCurent = mod;
+        _nrInmatriculareEditare = null;
+        MasiniDataGrid.SelectedIndex = -1;
+        NrInmatriculareTextBox.Clear();
+        MarcaComboBox.SelectedIndex = 0;
+        ModelComboBox.ItemsSource = MainWindowViewModel.GetModelePentruMarca(MarcaMasina.Dacia);
+        ModelComboBox.SelectedIndex = 0;
+        AnComboBox.SelectedItem = DateTime.Now.Year;
+        KilometrajTextBox.Text = "0";
+        CuloareComboBox.SelectedItem = Culoare.Alb;
+        CombustibilComboBox.SelectedItem = CombustibilMasina.Diesel;
+        StatusMasinaComboBox.SelectedItem = StatusMasina.Disponibila;
+        AerConditionatCheckBox.IsChecked = true;
+        NavigatieCheckBox.IsChecked = false;
+        SenzoriParcareCheckBox.IsChecked = false;
+        ScauneIncalziteCheckBox.IsChecked = false;
+        CutieAutomataCheckBox.IsChecked = false;
+        CameraMarsarierCheckBox.IsChecked = false;
+    }
 
-        if (AdaugareRadioButton != null)
-        {
-            AdaugareRadioButton.IsChecked = mod == ModFormular.Adaugare;
-            EditareRadioButton.IsChecked = mod == ModFormular.Editare;
-        }
+    private void SalveazaSofer_Click(object sender, RoutedEventArgs e)
+    {
+        ResetValidareSofer();
 
-        if (SalveazaButton == null)
+        if (!ValideazaSofer(out Sofer sofer))
         {
             return;
         }
 
-        if (mod == ModFormular.Adaugare)
+        if (_soferIdEditare == null)
         {
-            FormTitleTextBlock.Text = "Date masina";
-            SalveazaButton.Content = "Adauga masina";
-            NrInmatriculareTextBox.IsEnabled = true;
-            _nrInmatriculareEditare = null;
+            _viewModel.AdaugaSofer(sofer);
+            CurataFormularSofer();
+            AfiseazaMesajSofer("Soferul a fost adaugat.", esteEroare: false);
             return;
         }
 
-        FormTitleTextBlock.Text = "Editare masina";
-        SalveazaButton.Content = "Salveaza modificari";
-        NrInmatriculareTextBox.IsEnabled = false;
+        bool actualizat = _viewModel.ActualizeazaSofer(_soferIdEditare.Value, sofer);
+        AfiseazaMesajSofer(actualizat ? "Modificarile au fost salvate." : "Soferul nu a fost gasit.", esteEroare: !actualizat);
+    }
 
-        if (MasiniDataGrid.SelectedItem is Masina masina)
+    private void StergeSofer_Click(object sender, RoutedEventArgs e)
+    {
+        if (_soferIdEditare == null)
         {
-            IncarcaMasinaInFormular(masina);
+            AfiseazaMesajSofer("Selecteaza un sofer din tabel inainte de stergere.", esteEroare: true);
+            return;
         }
-        else
+
+        bool sters = _viewModel.StergeSofer(_soferIdEditare.Value);
+        if (sters)
         {
-            AfiseazaMesaj("Selectati o masina din lista pentru editare.", esteEroare: true);
+            CurataFormularSofer();
         }
+
+        AfiseazaMesajSofer(
+            sters ? "Soferul a fost sters." : "Soferul nu poate fi sters: nu exista sau este folosit intr-o cursa.",
+            esteEroare: !sters);
+    }
+
+    private void SoferNou_Click(object sender, RoutedEventArgs e)
+    {
+        CurataFormularSofer();
+        ResetValidareSofer();
+    }
+
+    private void SoferDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (SoferDataGrid.SelectedItem is Sofer sofer)
+        {
+            IncarcaSofer(sofer);
+        }
+    }
+
+    private void SoferFiltru_Changed(object sender, EventArgs e)
+    {
+        if (!_initializareCompleta)
+        {
+            return;
+        }
+
+        StatusSofer? status = SoferStatusFilterComboBox.SelectedItem is StatusSofer statusSelectat ? statusSelectat : null;
+        _viewModel.FiltreazaSoferi(SoferSearchTextBox.Text, status);
+    }
+
+    private void ResetFiltreSoferi_Click(object sender, RoutedEventArgs e)
+    {
+        SoferSearchTextBox.Clear();
+        SoferStatusFilterComboBox.SelectedIndex = -1;
+        _viewModel.ResetFiltreSoferi();
+    }
+
+    private void SoferCamp_Changed(object sender, EventArgs e)
+    {
+        ResetValidareSofer();
+    }
+
+    private bool ValideazaSofer(out Sofer sofer)
+    {
+        sofer = new Sofer(0, string.Empty);
+        var mesaje = new StringBuilder();
+        bool valid = true;
+
+        if (!int.TryParse(SoferIdTextBox.Text, out int id) || id < SoferIdMinim)
+        {
+            MarcheazaInvalid(SoferIdLabel, mesaje, $"ID-ul trebuie sa fie >= {SoferIdMinim}.");
+            valid = false;
+        }
+        else if (_soferIdEditare == null && _viewModel.ExistaSofer(id))
+        {
+            MarcheazaInvalid(SoferIdLabel, mesaje, "Exista deja un sofer cu acest ID.");
+            valid = false;
+        }
+
+        string nume = SoferNumeTextBox.Text.Trim();
+        if (nume.Length < SoferNumeMinLength || nume.Length > SoferNumeMaxLength)
+        {
+            MarcheazaInvalid(SoferNumeLabel, mesaje, $"Numele trebuie sa aiba intre {SoferNumeMinLength} si {SoferNumeMaxLength} caractere.");
+            valid = false;
+        }
+
+        string telefon = SoferTelefonTextBox.Text.Trim();
+        if (telefon.Length < SoferTelefonMinLength || telefon.Length > SoferTelefonMaxLength)
+        {
+            MarcheazaInvalid(SoferTelefonLabel, mesaje, $"Telefonul trebuie sa aiba intre {SoferTelefonMinLength} si {SoferTelefonMaxLength} caractere.");
+            valid = false;
+        }
+
+        if (SoferPermisComboBox.SelectedItem is not CategoriePermis permis)
+        {
+            MarcheazaInvalid(SoferPermisLabel, mesaje, "Alege categoria permisului.");
+            valid = false;
+            permis = CategoriePermis.B;
+        }
+
+        if (SoferStatusComboBox.SelectedItem is not StatusSofer status)
+        {
+            MarcheazaInvalid(SoferStatusLabel, mesaje, "Alege statusul soferului.");
+            valid = false;
+            status = StatusSofer.Disponibil;
+        }
+
+        if (!CitesteDouble(SoferKmTextBox.Text, out double kilometri) ||
+            kilometri < SoferKmMinim ||
+            kilometri > SoferKmMaxim)
+        {
+            MarcheazaInvalid(SoferKmLabel, mesaje, $"Kilometrii trebuie sa fie intre {SoferKmMinim:N0} si {SoferKmMaxim:N0}.");
+            valid = false;
+        }
+
+        sofer = new Sofer(id, nume, telefon, permis, status)
+        {
+            TotalKilometriParcursi = kilometri
+        };
+
+        if (valid)
+        {
+            return true;
+        }
+
+        AfiseazaMesajSofer(mesaje.ToString().TrimEnd(), esteEroare: true);
+        return false;
+    }
+
+    private void IncarcaSofer(Sofer sofer)
+    {
+        _soferIdEditare = sofer.Id;
+        SoferIdTextBox.Text = sofer.Id.ToString(CultureInfo.CurrentCulture);
+        SoferNumeTextBox.Text = sofer.Nume;
+        SoferTelefonTextBox.Text = sofer.Telefon;
+        SoferPermisComboBox.SelectedItem = sofer.CategoriePermis;
+        SoferStatusComboBox.SelectedItem = sofer.Status;
+        SoferKmTextBox.Text = sofer.TotalKilometriParcursi.ToString(CultureInfo.CurrentCulture);
+        ResetValidareSofer();
+    }
+
+    private void CurataFormularSofer()
+    {
+        _soferIdEditare = null;
+        SoferDataGrid.SelectedIndex = -1;
+        SoferIdTextBox.Clear();
+        SoferNumeTextBox.Clear();
+        SoferTelefonTextBox.Clear();
+        SoferPermisComboBox.SelectedItem = CategoriePermis.B;
+        SoferStatusComboBox.SelectedItem = StatusSofer.Disponibil;
+        SoferKmTextBox.Text = "0";
+    }
+
+    private void SalveazaCursa_Click(object sender, RoutedEventArgs e)
+    {
+        ResetValidareCursa();
+
+        if (!ValideazaCursa(out Cursa cursa))
+        {
+            return;
+        }
+
+        if (_cursaIdEditare == null)
+        {
+            _viewModel.AdaugaCursa(cursa);
+            CurataFormularCursa();
+            AfiseazaMesajCursa("Cursa a fost adaugata.", esteEroare: false);
+            return;
+        }
+
+        bool actualizat = _viewModel.ActualizeazaCursa(_cursaIdEditare.Value, cursa);
+        _cursaIdEditare = actualizat ? cursa.Id : _cursaIdEditare;
+        AfiseazaMesajCursa(actualizat ? "Modificarile au fost salvate." : "Cursa nu a fost gasita.", esteEroare: !actualizat);
+    }
+
+    private void StergeCursa_Click(object sender, RoutedEventArgs e)
+    {
+        if (_cursaIdEditare == null)
+        {
+            AfiseazaMesajCursa("Selecteaza o cursa din tabel inainte de stergere.", esteEroare: true);
+            return;
+        }
+
+        bool sters = _viewModel.StergeCursa(_cursaIdEditare.Value);
+        if (sters)
+        {
+            CurataFormularCursa();
+        }
+
+        AfiseazaMesajCursa(sters ? "Cursa a fost stearsa." : "Cursa nu a fost gasita.", esteEroare: !sters);
+    }
+
+    private void CursaNoua_Click(object sender, RoutedEventArgs e)
+    {
+        CurataFormularCursa();
+        ResetValidareCursa();
+    }
+
+    private void CurseDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CurseDataGrid.SelectedItem is Cursa cursa)
+        {
+            CurseQuickListBox.SelectedItem = cursa;
+            IncarcaCursa(cursa);
+        }
+    }
+
+    private void CurseQuickListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CurseQuickListBox.SelectedItem is Cursa cursa)
+        {
+            CurseDataGrid.SelectedItem = cursa;
+            IncarcaCursa(cursa);
+        }
+    }
+
+    private void CursaFiltru_Changed(object sender, EventArgs e)
+    {
+        if (!_initializareCompleta)
+        {
+            return;
+        }
+
+        StatusCursa? status = CursaStatusFilterComboBox.SelectedItem is StatusCursa statusSelectat ? statusSelectat : null;
+        TipCursa? tip = CursaTipFilterComboBox.SelectedItem is TipCursa tipSelectat ? tipSelectat : null;
+        _viewModel.FiltreazaCurse(CursaSearchTextBox.Text, status, tip);
+    }
+
+    private void ResetFiltreCurse_Click(object sender, RoutedEventArgs e)
+    {
+        CursaSearchTextBox.Clear();
+        CursaStatusFilterComboBox.SelectedIndex = -1;
+        CursaTipFilterComboBox.SelectedIndex = -1;
+        _viewModel.ResetFiltreCurse();
+    }
+
+    private void CursaCamp_Changed(object sender, EventArgs e)
+    {
+        ResetValidareCursa();
+    }
+
+    private bool ValideazaCursa(out Cursa cursa)
+    {
+        cursa = CreeazaCursaGoala();
+        var mesaje = new StringBuilder();
+        bool valid = true;
+
+        if (!int.TryParse(CursaIdTextBox.Text, out int id) || id < CursaIdMinim)
+        {
+            MarcheazaInvalid(CursaIdLabel, mesaje, $"ID-ul cursei trebuie sa fie >= {CursaIdMinim}.");
+            valid = false;
+        }
+        else if (_viewModel.ExistaCursa(id, _cursaIdEditare))
+        {
+            MarcheazaInvalid(CursaIdLabel, mesaje, "Exista deja o cursa cu acest ID.");
+            valid = false;
+        }
+
+        string plecare = LocPlecareTextBox.Text.Trim();
+        if (plecare.Length < CursaTextMinLength || plecare.Length > CursaTextMaxLength)
+        {
+            MarcheazaInvalid(LocPlecareLabel, mesaje, $"Plecare trebuie sa aiba intre {CursaTextMinLength} si {CursaTextMaxLength} caractere.");
+            valid = false;
+        }
+
+        string destinatie = DestinatieTextBox.Text.Trim();
+        if (destinatie.Length < CursaTextMinLength || destinatie.Length > CursaTextMaxLength)
+        {
+            MarcheazaInvalid(DestinatieLabel, mesaje, $"Destinatia trebuie sa aiba intre {CursaTextMinLength} si {CursaTextMaxLength} caractere.");
+            valid = false;
+        }
+
+        if (!CitesteDataOra(DataPlecareDatePicker, OraPlecareTextBox, out DateTime dataPlecare))
+        {
+            MarcheazaInvalid(DataPlecareLabel, mesaje, "Alege data plecarii si ora in format HH:mm.");
+            MarcheazaInvalid(OraPlecareLabel, mesaje, "Ora de plecare nu este valida.");
+            valid = false;
+        }
+
+        if (!CitesteDataOra(DataSosireDatePicker, OraSosireTextBox, out DateTime dataSosire))
+        {
+            MarcheazaInvalid(DataSosireLabel, mesaje, "Alege data sosirii si ora in format HH:mm.");
+            MarcheazaInvalid(OraSosireLabel, mesaje, "Ora de sosire nu este valida.");
+            valid = false;
+        }
+
+        if (valid && dataSosire <= dataPlecare)
+        {
+            MarcheazaInvalid(DataSosireLabel, mesaje, "Data sosirii trebuie sa fie dupa data plecarii.");
+            valid = false;
+        }
+
+        if (CursaMasinaComboBox.SelectedItem is not Masina masina)
+        {
+            MarcheazaInvalid(CursaMasinaLabel, mesaje, "Alege masina pentru cursa.");
+            valid = false;
+            masina = CreeazaCursaGoala().MasinaAlocata;
+        }
+
+        if (CursaSoferComboBox.SelectedItem is not Sofer sofer)
+        {
+            MarcheazaInvalid(CursaSoferLabel, mesaje, "Alege soferul pentru cursa.");
+            valid = false;
+            sofer = CreeazaCursaGoala().SoferAlocat;
+        }
+
+        if (CursaStatusComboBox.SelectedItem is not StatusCursa status)
+        {
+            MarcheazaInvalid(CursaStatusLabel, mesaje, "Alege statusul cursei.");
+            valid = false;
+            status = StatusCursa.Planificata;
+        }
+
+        TipCursa tip = CursaInternationalaRadioButton.IsChecked == true
+            ? TipCursa.Internationala
+            : TipCursa.Interna;
+
+        if (!CitesteDouble(DistantaTextBox.Text, out double distanta) ||
+            distanta < DistantaMinima ||
+            distanta > DistantaMaxima)
+        {
+            MarcheazaInvalid(DistantaLabel, mesaje, $"Distanta trebuie sa fie intre {DistantaMinima:N0} si {DistantaMaxima:N0} km.");
+            valid = false;
+        }
+
+        if (!CitesteDecimal(CostTextBox.Text, out decimal cost) ||
+            cost < CostMinim ||
+            cost > CostMaxim)
+        {
+            MarcheazaInvalid(CostLabel, mesaje, $"Costul trebuie sa fie intre {CostMinim:N0} si {CostMaxim:N0}.");
+            valid = false;
+        }
+
+        if (valid && status != StatusCursa.Anulata)
+        {
+            if (!_viewModel.EsteMasinaDisponibila(masina, dataPlecare, dataSosire, _cursaIdEditare))
+            {
+                MarcheazaInvalid(CursaMasinaLabel, mesaje, "Masina este deja alocata intr-o cursa care se suprapune.");
+                valid = false;
+            }
+
+            if (!_viewModel.EsteSoferDisponibil(sofer, dataPlecare, dataSosire, _cursaIdEditare))
+            {
+                MarcheazaInvalid(CursaSoferLabel, mesaje, "Soferul este deja alocat intr-o cursa care se suprapune.");
+                valid = false;
+            }
+        }
+
+        cursa = new Cursa(id, plecare, destinatie, dataPlecare, dataSosire, masina, sofer, tip, status, distanta, cost);
+
+        if (valid)
+        {
+            return true;
+        }
+
+        AfiseazaMesajCursa(mesaje.ToString().TrimEnd(), esteEroare: true);
+        return false;
+    }
+
+    private void IncarcaCursa(Cursa cursa)
+    {
+        _cursaIdEditare = cursa.Id;
+        CursaIdTextBox.Text = cursa.Id.ToString(CultureInfo.CurrentCulture);
+        LocPlecareTextBox.Text = cursa.LocPlecare;
+        DestinatieTextBox.Text = cursa.Destinatie;
+        DataPlecareDatePicker.SelectedDate = cursa.DataPlecare.Date;
+        OraPlecareTextBox.Text = cursa.DataPlecare.ToString("HH:mm", CultureInfo.InvariantCulture);
+        DataSosireDatePicker.SelectedDate = cursa.DataSosire.Date;
+        OraSosireTextBox.Text = cursa.DataSosire.ToString("HH:mm", CultureInfo.InvariantCulture);
+        CursaMasinaComboBox.SelectedItem = cursa.MasinaAlocata;
+        CursaSoferComboBox.SelectedItem = cursa.SoferAlocat;
+        CursaStatusComboBox.SelectedItem = cursa.Status;
+        CursaInternaRadioButton.IsChecked = cursa.Tip == TipCursa.Interna;
+        CursaInternationalaRadioButton.IsChecked = cursa.Tip == TipCursa.Internationala;
+        DistantaTextBox.Text = cursa.DistantaKm.ToString(CultureInfo.CurrentCulture);
+        CostTextBox.Text = cursa.CostEstimativ.ToString(CultureInfo.CurrentCulture);
+        ResetValidareCursa();
+    }
+
+    private void CurataFormularCursa()
+    {
+        _cursaIdEditare = null;
+        CurseDataGrid.SelectedIndex = -1;
+        CurseQuickListBox.SelectedIndex = -1;
+        CursaIdTextBox.Text = _viewModel.GenereazaIdCursa().ToString(CultureInfo.CurrentCulture);
+        LocPlecareTextBox.Clear();
+        DestinatieTextBox.Clear();
+        DateTime acum = DateTime.Now;
+        DataPlecareDatePicker.SelectedDate = acum.Date;
+        OraPlecareTextBox.Text = acum.AddMinutes(30).ToString("HH:mm", CultureInfo.InvariantCulture);
+        DataSosireDatePicker.SelectedDate = acum.Date;
+        OraSosireTextBox.Text = acum.AddHours(2).ToString("HH:mm", CultureInfo.InvariantCulture);
+        CursaMasinaComboBox.SelectedIndex = _viewModel.MasiniPentruSelectie.Count > 0 ? 0 : -1;
+        CursaSoferComboBox.SelectedIndex = _viewModel.SoferiPentruSelectie.Count > 0 ? 0 : -1;
+        CursaStatusComboBox.SelectedItem = StatusCursa.Planificata;
+        CursaInternaRadioButton.IsChecked = true;
+        DistantaTextBox.Text = "1";
+        CostTextBox.Text = "0";
+    }
+
+    private static Cursa CreeazaCursaGoala()
+    {
+        var masina = new Masina(string.Empty, string.Empty, 0, Culoare.Alb, Optiuni.Niciuna);
+        var sofer = new Sofer(0, string.Empty);
+        return new Cursa(0, string.Empty, string.Empty, DateTime.Now, DateTime.Now.AddHours(1), masina, sofer, TipCursa.Interna, StatusCursa.Planificata, 0, 0);
+    }
+
+    private static bool CitesteDouble(string text, out double valoare)
+    {
+        return double.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out valoare) ||
+               double.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out valoare);
+    }
+
+    private static bool CitesteDecimal(string text, out decimal valoare)
+    {
+        return decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out valoare) ||
+               decimal.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out valoare);
+    }
+
+    private static bool CitesteDataOra(DatePicker datePicker, TextBox oraTextBox, out DateTime dataOra)
+    {
+        dataOra = default;
+        if (datePicker.SelectedDate == null)
+        {
+            return false;
+        }
+
+        if (!TimeSpan.TryParseExact(oraTextBox.Text.Trim(), @"hh\:mm", CultureInfo.InvariantCulture, out TimeSpan ora) &&
+            !TimeSpan.TryParse(oraTextBox.Text.Trim(), CultureInfo.CurrentCulture, out ora))
+        {
+            return false;
+        }
+
+        dataOra = datePicker.SelectedDate.Value.Date.Add(ora);
+        return true;
     }
 
     private void MarcheazaInvalid(TextBlock label, StringBuilder mesaje, string mesaj)
@@ -311,220 +778,50 @@ public partial class MainWindow : Window
         mesaje.AppendLine(mesaj);
     }
 
-    private void AfiseazaMesaj(string mesaj, bool esteEroare)
+    private void AfiseazaMesajMasina(string mesaj, bool esteEroare)
     {
-        ErrorTextBlock.Text = mesaj;
-        ErrorTextBlock.Foreground = esteEroare
+        AfiseazaMesaj(MasinaMessagePanel, MasinaMessageTextBlock, mesaj, esteEroare);
+    }
+
+    private void AfiseazaMesajSofer(string mesaj, bool esteEroare)
+    {
+        AfiseazaMesaj(SoferMessagePanel, SoferMessageTextBlock, mesaj, esteEroare);
+    }
+
+    private void AfiseazaMesajCursa(string mesaj, bool esteEroare)
+    {
+        AfiseazaMesaj(CursaMessagePanel, CursaMessageTextBlock, mesaj, esteEroare);
+    }
+
+    private void AfiseazaMesaj(Border panel, TextBlock textBlock, string mesaj, bool esteEroare)
+    {
+        textBlock.Text = mesaj;
+        textBlock.Foreground = esteEroare
             ? _labelInvalidBrush
             : new SolidColorBrush(Color.FromRgb(23, 107, 91));
-        ErrorPanel.Background = esteEroare
+        panel.Background = esteEroare
             ? new SolidColorBrush(Color.FromRgb(255, 241, 241))
             : new SolidColorBrush(Color.FromRgb(237, 245, 242));
-        ErrorPanel.BorderBrush = esteEroare
+        panel.BorderBrush = esteEroare
             ? new SolidColorBrush(Color.FromRgb(240, 184, 184))
             : new SolidColorBrush(Color.FromRgb(207, 225, 219));
-        ErrorPanel.Visibility = Visibility.Visible;
+        panel.Visibility = Visibility.Visible;
     }
 
-    private void ResetValidare()
+    private void ResetValidareMasina()
     {
-        NrInmatriculareLabel.Foreground = _labelNormalBrush;
-        ModelLabel.Foreground = _labelNormalBrush;
-        KilometrajLabel.Foreground = _labelNormalBrush;
-        CuloareLabel.Foreground = _labelNormalBrush;
-
-        ErrorTextBlock.Foreground = _labelInvalidBrush;
-        ErrorPanel.Background = new SolidColorBrush(Color.FromRgb(255, 241, 241));
-        ErrorPanel.BorderBrush = new SolidColorBrush(Color.FromRgb(240, 184, 184));
-        ErrorPanel.Visibility = Visibility.Collapsed;
-        ErrorTextBlock.Text = string.Empty;
-    }
-
-    private void ReseteazaFormular()
-    {
-        NrInmatriculareTextBox.Clear();
-        ModelTextBox.Clear();
-        KilometrajTextBox.Clear();
-        CuloareComboBox.SelectedIndex = -1;
-        AerConditionatCheckBox.IsChecked = false;
-        NavigatieCheckBox.IsChecked = false;
-        SenzoriParcareCheckBox.IsChecked = false;
-        ScauneIncalziteCheckBox.IsChecked = false;
-        _nrInmatriculareEditare = null;
-    }
-
-    private void AdaugaSofer_Click(object sender, RoutedEventArgs e)
-    {
-        ResetValidareSofer();
-
-        if (!ValideazaFormularSofer(verificaIdUnic: true, out int id, out string nume, out double kilometri))
+        if (NrInmatriculareLabel == null)
         {
             return;
         }
 
-        var sofer = new Sofer(id, nume)
+        foreach (TextBlock label in new[] { NrInmatriculareLabel, MarcaLabel, ModelLabel, AnLabel, KilometrajLabel, CuloareLabel, CombustibilLabel, StatusMasinaLabel })
         {
-            TotalKilometriParcursi = kilometri
-        };
-
-        _viewModel.AdaugaSofer(sofer);
-        ReseteazaFormularSofer();
-        AfiseazaMesajSofer("Soferul a fost adaugat cu succes.", esteEroare: false);
-    }
-
-    private void ActualizeazaSofer_Click(object sender, RoutedEventArgs e)
-    {
-        ResetValidareSofer();
-
-        if (!ValideazaFormularSofer(verificaIdUnic: false, out int id, out string nume, out double kilometri))
-        {
-            return;
+            label.Foreground = _labelNormalBrush;
         }
 
-        bool actualizat = _viewModel.ActualizeazaSofer(id, nume, kilometri);
-        AfiseazaMesajSofer(
-            actualizat ? "Soferul a fost actualizat cu succes." : "Soferul nu a fost gasit.",
-            esteEroare: !actualizat);
-    }
-
-    private void StergeSofer_Click(object sender, RoutedEventArgs e)
-    {
-        ResetValidareSofer();
-
-        if (!int.TryParse(SoferIdTextBox.Text, out int id))
-        {
-            MarcheazaInvalid(SoferIdLabel, new StringBuilder(), string.Empty);
-            AfiseazaMesajSofer("Introduceti ID-ul soferului care trebuie sters.", esteEroare: true);
-            return;
-        }
-
-        bool sters = _viewModel.StergeSofer(id);
-        if (sters)
-        {
-            ReseteazaFormularSofer();
-        }
-
-        AfiseazaMesajSofer(
-            sters ? "Soferul a fost sters cu succes." : "Soferul nu a fost gasit.",
-            esteEroare: !sters);
-    }
-
-    private void ResetSofer_Click(object sender, RoutedEventArgs e)
-    {
-        ReseteazaFormularSofer();
-        ResetValidareSofer();
-    }
-
-    private void CautaSofer_Click(object sender, RoutedEventArgs e)
-    {
-        _viewModel.CautaSoferDupaNume(SoferSearchTextBox.Text);
-        AfiseazaMesajSofer("Cautarea dupa nume a fost aplicata.", esteEroare: false);
-    }
-
-    private void ResetCautareSofer_Click(object sender, RoutedEventArgs e)
-    {
-        SoferSearchTextBox.Clear();
-        _viewModel.ResetCautareSoferi();
-        ResetValidareSofer();
-    }
-
-    private void SoferSearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(SoferSearchTextBox.Text))
-        {
-            _viewModel.ResetCautareSoferi();
-        }
-    }
-
-    private void SoferCamp_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        ResetValidareSofer();
-    }
-
-    private void SoferComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (SoferComboBox.SelectedItem is not Sofer sofer)
-        {
-            return;
-        }
-
-        SoferDataGrid.SelectedItem = sofer;
-        IncarcaSoferInFormular(sofer);
-    }
-
-    private void SoferDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (SoferDataGrid.SelectedItem is not Sofer sofer)
-        {
-            return;
-        }
-
-        SoferComboBox.SelectedItem = sofer;
-        IncarcaSoferInFormular(sofer);
-    }
-
-    private bool ValideazaFormularSofer(bool verificaIdUnic, out int id, out string nume, out double kilometri)
-    {
-        var mesaje = new StringBuilder();
-        bool dateValide = true;
-
-        nume = SoferNumeTextBox.Text.Trim();
-
-        if (!int.TryParse(SoferIdTextBox.Text, out id) || id < SoferIdMinim)
-        {
-            MarcheazaInvalid(
-                SoferIdLabel,
-                mesaje,
-                $"ID-ul soferului trebuie sa fie un numar intreg >= {SoferIdMinim}.");
-            dateValide = false;
-        }
-        else if (verificaIdUnic && _viewModel.ExistaSofer(id))
-        {
-            MarcheazaInvalid(SoferIdLabel, mesaje, "Exista deja un sofer cu acest ID.");
-            dateValide = false;
-        }
-
-        if (nume.Length < SoferNumeMinLength || nume.Length > SoferNumeMaxLength)
-        {
-            MarcheazaInvalid(
-                SoferNumeLabel,
-                mesaje,
-                $"Numele trebuie sa aiba intre {SoferNumeMinLength} si {SoferNumeMaxLength} caractere.");
-            dateValide = false;
-        }
-
-        if (!double.TryParse(SoferKmTextBox.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out kilometri) &&
-            !double.TryParse(SoferKmTextBox.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out kilometri))
-        {
-            kilometri = 0;
-            MarcheazaInvalid(SoferKmLabel, mesaje, "Kilometrii trebuie sa fie un numar valid.");
-            dateValide = false;
-        }
-        else if (kilometri < SoferKmMinim || kilometri > SoferKmMaxim)
-        {
-            MarcheazaInvalid(
-                SoferKmLabel,
-                mesaje,
-                $"Kilometrii trebuie sa fie intre {SoferKmMinim:N0} si {SoferKmMaxim:N0}.");
-            dateValide = false;
-        }
-
-        if (dateValide)
-        {
-            return true;
-        }
-
-        SoferErrorTextBlock.Text = mesaje.ToString().TrimEnd();
-        SoferErrorPanel.Visibility = Visibility.Visible;
-        return false;
-    }
-
-    private void IncarcaSoferInFormular(Sofer sofer)
-    {
-        SoferIdTextBox.Text = sofer.Id.ToString(CultureInfo.CurrentCulture);
-        SoferNumeTextBox.Text = sofer.Nume;
-        SoferKmTextBox.Text = sofer.TotalKilometriParcursi.ToString(CultureInfo.CurrentCulture);
-        ResetValidareSofer();
+        MasinaMessagePanel.Visibility = Visibility.Collapsed;
+        MasinaMessageTextBlock.Text = string.Empty;
     }
 
     private void ResetValidareSofer()
@@ -534,44 +831,58 @@ public partial class MainWindow : Window
             return;
         }
 
-        SoferIdLabel.Foreground = _labelNormalBrush;
-        SoferNumeLabel.Foreground = _labelNormalBrush;
-        SoferKmLabel.Foreground = _labelNormalBrush;
+        foreach (TextBlock label in new[] { SoferIdLabel, SoferNumeLabel, SoferTelefonLabel, SoferPermisLabel, SoferStatusLabel, SoferKmLabel })
+        {
+            label.Foreground = _labelNormalBrush;
+        }
 
-        SoferErrorTextBlock.Foreground = _labelInvalidBrush;
-        SoferErrorPanel.Background = new SolidColorBrush(Color.FromRgb(255, 241, 241));
-        SoferErrorPanel.BorderBrush = new SolidColorBrush(Color.FromRgb(240, 184, 184));
-        SoferErrorPanel.Visibility = Visibility.Collapsed;
-        SoferErrorTextBlock.Text = string.Empty;
+        SoferMessagePanel.Visibility = Visibility.Collapsed;
+        SoferMessageTextBlock.Text = string.Empty;
     }
 
-    private void ReseteazaFormularSofer()
+    private void ResetValidareCursa()
     {
-        SoferIdTextBox.Clear();
-        SoferNumeTextBox.Clear();
-        SoferKmTextBox.Clear();
-        SoferComboBox.SelectedIndex = -1;
-        SoferDataGrid.SelectedIndex = -1;
+        if (CursaIdLabel == null)
+        {
+            return;
+        }
+
+        foreach (TextBlock label in new[]
+                 {
+                     CursaIdLabel, CursaStatusLabel, LocPlecareLabel, DestinatieLabel, DataPlecareLabel,
+                     OraPlecareLabel, DataSosireLabel, OraSosireLabel, CursaMasinaLabel, CursaSoferLabel,
+                     CursaTipLabel, DistantaLabel, CostLabel
+                 })
+        {
+            label.Foreground = _labelNormalBrush;
+        }
+
+        CursaMessagePanel.Visibility = Visibility.Collapsed;
+        CursaMessageTextBlock.Text = string.Empty;
     }
 
-    private void AfiseazaMesajSofer(string mesaj, bool esteEroare)
+    private void DashboardMenu_Click(object sender, RoutedEventArgs e)
     {
-        SoferErrorTextBlock.Text = mesaj;
-        SoferErrorTextBlock.Foreground = esteEroare
-            ? _labelInvalidBrush
-            : new SolidColorBrush(Color.FromRgb(23, 107, 91));
-        SoferErrorPanel.Background = esteEroare
-            ? new SolidColorBrush(Color.FromRgb(255, 241, 241))
-            : new SolidColorBrush(Color.FromRgb(237, 245, 242));
-        SoferErrorPanel.BorderBrush = esteEroare
-            ? new SolidColorBrush(Color.FromRgb(240, 184, 184))
-            : new SolidColorBrush(Color.FromRgb(207, 225, 219));
-        SoferErrorPanel.Visibility = Visibility.Visible;
+        MainTabControl.SelectedItem = DashboardTab;
     }
 
-    private enum ModFormular
+    private void MasiniMenu_Click(object sender, RoutedEventArgs e)
     {
-        Adaugare,
-        Editare
+        MainTabControl.SelectedItem = MasiniTab;
+    }
+
+    private void SoferiMenu_Click(object sender, RoutedEventArgs e)
+    {
+        MainTabControl.SelectedItem = SoferiTab;
+    }
+
+    private void CurseMenu_Click(object sender, RoutedEventArgs e)
+    {
+        MainTabControl.SelectedItem = CurseTab;
+    }
+
+    private void Iesire_Click(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 }

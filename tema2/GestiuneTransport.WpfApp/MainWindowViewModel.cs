@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using GestiuneTransport.BusinessLogic;
 using GestiuneTransport.Models;
 using GestiuneTransport.StocareDate;
 
@@ -9,43 +8,93 @@ namespace GestiuneTransport.WpfApp;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {
-    private readonly MasinaRepository _masinaRepository = new();
     private readonly MasinaFileRepository _masinaFileRepository = new();
-    private readonly SoferRepository _soferRepository = new();
     private readonly SoferFileRepository _soferFileRepository = new();
+    private readonly CursaFileRepository _cursaFileRepository = new();
     private readonly List<Masina> _toateMasinile = new();
     private readonly List<Sofer> _totiSoferii = new();
+    private readonly List<Cursa> _toateCursele = new();
 
     public ObservableCollection<Masina> Masini { get; } = new();
     public ObservableCollection<Sofer> Soferi { get; } = new();
+    public ObservableCollection<Cursa> Curse { get; } = new();
+    public ObservableCollection<Masina> MasiniPentruSelectie { get; } = new();
+    public ObservableCollection<Sofer> SoferiPentruSelectie { get; } = new();
 
-    public string Rezumat => Masini.Count == 1
-        ? "1 masina afisata in lista."
-        : $"{Masini.Count} masini afisate in lista.";
+    public IReadOnlyList<MarcaMasina> Marci { get; } = Enum.GetValues<MarcaMasina>();
+    public IReadOnlyList<Culoare> Culori { get; } = Enum.GetValues<Culoare>();
+    public IReadOnlyList<CombustibilMasina> Combustibili { get; } = Enum.GetValues<CombustibilMasina>();
+    public IReadOnlyList<StatusMasina> StatusuriMasina { get; } = Enum.GetValues<StatusMasina>();
+    public IReadOnlyList<CategoriePermis> CategoriiPermis { get; } = Enum.GetValues<CategoriePermis>();
+    public IReadOnlyList<StatusSofer> StatusuriSofer { get; } = Enum.GetValues<StatusSofer>();
+    public IReadOnlyList<TipCursa> TipuriCursa { get; } = Enum.GetValues<TipCursa>();
+    public IReadOnlyList<StatusCursa> StatusuriCursa { get; } = Enum.GetValues<StatusCursa>();
+    public IReadOnlyList<int> AniFabricatie { get; } = Enumerable.Range(2000, DateTime.Now.Year - 1999).Reverse().ToList();
+
+    public int TotalMasini => _toateMasinile.Count;
+    public int MasiniDisponibile => _toateMasinile.Count(m => m.Status == StatusMasina.Disponibila);
+    public int MasiniInService => _toateMasinile.Count(m => m.Status == StatusMasina.Service);
+    public int TotalSoferi => _totiSoferii.Count;
+    public int SoferiDisponibili => _totiSoferii.Count(s => s.Status == StatusSofer.Disponibil);
+    public int SoferiInCursa => _totiSoferii.Count(s => s.Status == StatusSofer.InCursa);
+    public int TotalCurse => _toateCursele.Count;
+    public int CursePlanificate => _toateCursele.Count(c => c.Status == StatusCursa.Planificata);
+    public int CurseActive => _toateCursele.Count(c => c.Status == StatusCursa.InDesfasurare);
+
+    public string RezumatMasini => Masini.Count == 1
+        ? "1 masina afisata"
+        : $"{Masini.Count} masini afisate";
 
     public string RezumatSoferi => Soferi.Count == 1
-        ? "1 sofer afisat in lista."
-        : $"{Soferi.Count} soferi afisati in lista.";
+        ? "1 sofer afisat"
+        : $"{Soferi.Count} soferi afisati";
+
+    public string RezumatCurse => Curse.Count == 1
+        ? "1 cursa afisata"
+        : $"{Curse.Count} curse afisate";
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public MainWindowViewModel()
     {
-        Masini.CollectionChanged += (_, _) => OnPropertyChanged(nameof(Rezumat));
+        Masini.CollectionChanged += (_, _) => OnPropertyChanged(nameof(RezumatMasini));
         Soferi.CollectionChanged += (_, _) => OnPropertyChanged(nameof(RezumatSoferi));
+        Curse.CollectionChanged += (_, _) => OnPropertyChanged(nameof(RezumatCurse));
 
-        _toateMasinile.AddRange(_masinaRepository.GetAll());
-        ActualizeazaLista(_toateMasinile);
+        _toateMasinile.AddRange(_masinaFileRepository.IncarcaToti());
+        _totiSoferii.AddRange(_soferFileRepository.IncarcaToti());
+        _toateCursele.AddRange(_cursaFileRepository.IncarcaToti(_totiSoferii, _toateMasinile));
 
-        _totiSoferii.AddRange(_soferRepository.GetAll());
+        ActualizeazaListaMasini(_toateMasinile);
         ActualizeazaListaSoferi(_totiSoferii);
+        ActualizeazaSelectiiCurse();
+        ActualizeazaListaCurse(_toateCursele);
+        NotificaDashboard();
+    }
+
+    public static IReadOnlyList<string> GetModelePentruMarca(MarcaMasina marca)
+    {
+        return marca switch
+        {
+            MarcaMasina.Dacia => new[] { "Logan", "Duster", "Sandero", "Jogger" },
+            MarcaMasina.Volkswagen => new[] { "Golf", "Passat", "Transporter", "Caddy" },
+            MarcaMasina.Ford => new[] { "Focus", "Transit", "Mondeo", "Kuga" },
+            MarcaMasina.Mercedes => new[] { "Sprinter", "Vito", "Actros", "Atego" },
+            MarcaMasina.BMW => new[] { "Seria 3", "Seria 5", "X3", "X5" },
+            MarcaMasina.Renault => new[] { "Clio", "Megane", "Trafic", "Master" },
+            MarcaMasina.Toyota => new[] { "Corolla", "RAV4", "Hilux", "Proace" },
+            MarcaMasina.Hyundai => new[] { "i30", "Tucson", "Santa Fe", "H350" },
+            _ => Array.Empty<string>()
+        };
     }
 
     public void AdaugaMasina(Masina masina)
     {
-        _masinaRepository.Adauga(masina);
         _toateMasinile.Add(masina);
-        ActualizeazaLista(_toateMasinile);
+        SalveazaMasini();
+        ActualizeazaListaMasini(_toateMasinile);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
     }
 
     public bool ActualizeazaMasina(string nrInmatriculare, Masina masinaActualizata)
@@ -58,49 +107,95 @@ public class MainWindowViewModel : INotifyPropertyChanged
             return false;
         }
 
+        masina.NrInmatriculare = masinaActualizata.NrInmatriculare;
+        masina.Marca = masinaActualizata.Marca;
         masina.Model = masinaActualizata.Model;
+        masina.AnFabricatie = masinaActualizata.AnFabricatie;
         masina.Kilometraj = masinaActualizata.Kilometraj;
         masina.Culoare = masinaActualizata.Culoare;
+        masina.Combustibil = masinaActualizata.Combustibil;
+        masina.Status = masinaActualizata.Status;
         masina.Optiuni = masinaActualizata.Optiuni;
 
-        _masinaFileRepository.SalveazaToti(_toateMasinile);
-        ActualizeazaLista(_toateMasinile);
+        SalveazaMasini();
+        ActualizeazaListaMasini(_toateMasinile);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
         return true;
     }
 
-    public void CautaDupaNrInmatriculare(string termen)
+    public bool StergeMasina(string nrInmatriculare)
     {
-        if (string.IsNullOrWhiteSpace(termen))
+        if (_toateCursele.Any(c =>
+                c.MasinaAlocata.NrInmatriculare.Equals(nrInmatriculare, StringComparison.OrdinalIgnoreCase)))
         {
-            ActualizeazaLista(_toateMasinile);
-            return;
+            return false;
         }
 
-        IEnumerable<Masina> rezultate = _toateMasinile
-            .Where(m => m.NrInmatriculare.Contains(termen.Trim(), StringComparison.OrdinalIgnoreCase));
+        Masina? masina = _toateMasinile.FirstOrDefault(m =>
+            m.NrInmatriculare.Equals(nrInmatriculare, StringComparison.OrdinalIgnoreCase));
 
-        ActualizeazaLista(rezultate);
+        if (masina == null)
+        {
+            return false;
+        }
+
+        _toateMasinile.Remove(masina);
+        SalveazaMasini();
+        ActualizeazaListaMasini(_toateMasinile);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
+        return true;
     }
 
-    public void ResetCautare()
+    public void FiltreazaMasini(string text, MarcaMasina? marca, StatusMasina? status)
     {
-        ActualizeazaLista(_toateMasinile);
+        IEnumerable<Masina> rezultate = _toateMasinile;
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            string termen = text.Trim();
+            rezultate = rezultate.Where(m =>
+                m.NrInmatriculare.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                m.Model.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                m.Marca.ToString().Contains(termen, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (marca.HasValue)
+        {
+            rezultate = rezultate.Where(m => m.Marca == marca.Value);
+        }
+
+        if (status.HasValue)
+        {
+            rezultate = rezultate.Where(m => m.Status == status.Value);
+        }
+
+        ActualizeazaListaMasini(rezultate);
     }
 
-    public bool ExistaNrInmatriculare(string nrInmatriculare)
+    public void ResetFiltreMasini()
+    {
+        ActualizeazaListaMasini(_toateMasinile);
+    }
+
+    public bool ExistaNrInmatriculare(string nrInmatriculare, string? nrIgnorat = null)
     {
         return _toateMasinile.Any(m =>
-            m.NrInmatriculare.Equals(nrInmatriculare, StringComparison.OrdinalIgnoreCase));
+            m.NrInmatriculare.Equals(nrInmatriculare, StringComparison.OrdinalIgnoreCase) &&
+            !m.NrInmatriculare.Equals(nrIgnorat ?? string.Empty, StringComparison.OrdinalIgnoreCase));
     }
 
     public void AdaugaSofer(Sofer sofer)
     {
-        _soferRepository.Adauga(sofer);
         _totiSoferii.Add(sofer);
+        SalveazaSoferi();
         ActualizeazaListaSoferi(_totiSoferii);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
     }
 
-    public bool ActualizeazaSofer(int id, string nume, double kilometri)
+    public bool ActualizeazaSofer(int id, Sofer soferActualizat)
     {
         Sofer? sofer = _totiSoferii.FirstOrDefault(s => s.Id == id);
 
@@ -109,15 +204,26 @@ public class MainWindowViewModel : INotifyPropertyChanged
             return false;
         }
 
-        sofer.Nume = nume;
-        sofer.TotalKilometriParcursi = kilometri;
-        _soferFileRepository.SalveazaToti(_totiSoferii);
+        sofer.Nume = soferActualizat.Nume;
+        sofer.Telefon = soferActualizat.Telefon;
+        sofer.CategoriePermis = soferActualizat.CategoriePermis;
+        sofer.Status = soferActualizat.Status;
+        sofer.TotalKilometriParcursi = soferActualizat.TotalKilometriParcursi;
+
+        SalveazaSoferi();
         ActualizeazaListaSoferi(_totiSoferii);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
         return true;
     }
 
     public bool StergeSofer(int id)
     {
+        if (_toateCursele.Any(c => c.SoferAlocat.Id == id))
+        {
+            return false;
+        }
+
         Sofer? sofer = _totiSoferii.FirstOrDefault(s => s.Id == id);
 
         if (sofer == null)
@@ -126,26 +232,35 @@ public class MainWindowViewModel : INotifyPropertyChanged
         }
 
         _totiSoferii.Remove(sofer);
-        _soferFileRepository.SalveazaToti(_totiSoferii);
+        SalveazaSoferi();
         ActualizeazaListaSoferi(_totiSoferii);
+        ActualizeazaSelectiiCurse();
+        NotificaDashboard();
         return true;
     }
 
-    public void CautaSoferDupaNume(string nume)
+    public void FiltreazaSoferi(string text, StatusSofer? status)
     {
-        if (string.IsNullOrWhiteSpace(nume))
+        IEnumerable<Sofer> rezultate = _totiSoferii;
+
+        if (!string.IsNullOrWhiteSpace(text))
         {
-            ActualizeazaListaSoferi(_totiSoferii);
-            return;
+            string termen = text.Trim();
+            rezultate = rezultate.Where(s =>
+                s.Nume.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                s.Telefon.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                s.Id.ToString().Contains(termen, StringComparison.OrdinalIgnoreCase));
         }
 
-        IEnumerable<Sofer> rezultate = _totiSoferii
-            .Where(s => s.Nume.Contains(nume.Trim(), StringComparison.OrdinalIgnoreCase));
+        if (status.HasValue)
+        {
+            rezultate = rezultate.Where(s => s.Status == status.Value);
+        }
 
         ActualizeazaListaSoferi(rezultate);
     }
 
-    public void ResetCautareSoferi()
+    public void ResetFiltreSoferi()
     {
         ActualizeazaListaSoferi(_totiSoferii);
     }
@@ -155,11 +270,138 @@ public class MainWindowViewModel : INotifyPropertyChanged
         return _totiSoferii.Any(s => s.Id == id);
     }
 
-    private void ActualizeazaLista(IEnumerable<Masina> masini)
+    public int GenereazaIdCursa()
+    {
+        return _toateCursele.Count == 0 ? 1 : _toateCursele.Max(c => c.Id) + 1;
+    }
+
+    public bool ExistaCursa(int id, int? idIgnorat = null)
+    {
+        return _toateCursele.Any(c => c.Id == id && c.Id != idIgnorat);
+    }
+
+    public void AdaugaCursa(Cursa cursa)
+    {
+        _toateCursele.Add(cursa);
+        SalveazaCurse();
+        ActualizeazaListaCurse(_toateCursele);
+        NotificaDashboard();
+    }
+
+    public bool ActualizeazaCursa(int id, Cursa cursaActualizata)
+    {
+        Cursa? cursa = _toateCursele.FirstOrDefault(c => c.Id == id);
+
+        if (cursa == null)
+        {
+            return false;
+        }
+
+        cursa.Id = cursaActualizata.Id;
+        cursa.LocPlecare = cursaActualizata.LocPlecare;
+        cursa.Destinatie = cursaActualizata.Destinatie;
+        cursa.DataPlecare = cursaActualizata.DataPlecare;
+        cursa.DataSosire = cursaActualizata.DataSosire;
+        cursa.MasinaAlocata = cursaActualizata.MasinaAlocata;
+        cursa.SoferAlocat = cursaActualizata.SoferAlocat;
+        cursa.Tip = cursaActualizata.Tip;
+        cursa.Status = cursaActualizata.Status;
+        cursa.DistantaKm = cursaActualizata.DistantaKm;
+        cursa.CostEstimativ = cursaActualizata.CostEstimativ;
+
+        SalveazaCurse();
+        ActualizeazaListaCurse(_toateCursele);
+        NotificaDashboard();
+        return true;
+    }
+
+    public bool StergeCursa(int id)
+    {
+        Cursa? cursa = _toateCursele.FirstOrDefault(c => c.Id == id);
+
+        if (cursa == null)
+        {
+            return false;
+        }
+
+        _toateCursele.Remove(cursa);
+        SalveazaCurse();
+        ActualizeazaListaCurse(_toateCursele);
+        NotificaDashboard();
+        return true;
+    }
+
+    public void FiltreazaCurse(string text, StatusCursa? status, TipCursa? tip)
+    {
+        IEnumerable<Cursa> rezultate = _toateCursele;
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            string termen = text.Trim();
+            rezultate = rezultate.Where(c =>
+                c.Id.ToString().Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.LocPlecare.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.Destinatie.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.MasinaAlocata.NrInmatriculare.Contains(termen, StringComparison.OrdinalIgnoreCase) ||
+                c.SoferAlocat.Nume.Contains(termen, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (status.HasValue)
+        {
+            rezultate = rezultate.Where(c => c.Status == status.Value);
+        }
+
+        if (tip.HasValue)
+        {
+            rezultate = rezultate.Where(c => c.Tip == tip.Value);
+        }
+
+        ActualizeazaListaCurse(rezultate);
+    }
+
+    public void ResetFiltreCurse()
+    {
+        ActualizeazaListaCurse(_toateCursele);
+    }
+
+    public bool EsteMasinaDisponibila(Masina masina, DateTime plecare, DateTime sosire, int? idIgnorat = null)
+    {
+        return !_toateCursele.Any(c =>
+            c.Id != idIgnorat &&
+            c.Status != StatusCursa.Anulata &&
+            c.MasinaAlocata.NrInmatriculare.Equals(masina.NrInmatriculare, StringComparison.OrdinalIgnoreCase) &&
+            IntervaleleSeSuprapun(c.DataPlecare, c.DataSosire, plecare, sosire));
+    }
+
+    public bool EsteSoferDisponibil(Sofer sofer, DateTime plecare, DateTime sosire, int? idIgnorat = null)
+    {
+        return !_toateCursele.Any(c =>
+            c.Id != idIgnorat &&
+            c.Status != StatusCursa.Anulata &&
+            c.SoferAlocat.Id == sofer.Id &&
+            IntervaleleSeSuprapun(c.DataPlecare, c.DataSosire, plecare, sosire));
+    }
+
+    private void SalveazaMasini()
+    {
+        _masinaFileRepository.SalveazaToti(_toateMasinile);
+    }
+
+    private void SalveazaSoferi()
+    {
+        _soferFileRepository.SalveazaToti(_totiSoferii);
+    }
+
+    private void SalveazaCurse()
+    {
+        _cursaFileRepository.SalveazaToti(_toateCursele);
+    }
+
+    private void ActualizeazaListaMasini(IEnumerable<Masina> masini)
     {
         Masini.Clear();
 
-        foreach (Masina masina in masini)
+        foreach (Masina masina in masini.OrderBy(m => m.Marca).ThenBy(m => m.Model))
         {
             Masini.Add(masina);
         }
@@ -169,10 +411,53 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         Soferi.Clear();
 
-        foreach (Sofer sofer in soferi)
+        foreach (Sofer sofer in soferi.OrderBy(s => s.Nume))
         {
             Soferi.Add(sofer);
         }
+    }
+
+    private void ActualizeazaListaCurse(IEnumerable<Cursa> curse)
+    {
+        Curse.Clear();
+
+        foreach (Cursa cursa in curse.OrderBy(c => c.DataPlecare))
+        {
+            Curse.Add(cursa);
+        }
+    }
+
+    private void ActualizeazaSelectiiCurse()
+    {
+        MasiniPentruSelectie.Clear();
+        foreach (Masina masina in _toateMasinile.OrderBy(m => m.NrInmatriculare))
+        {
+            MasiniPentruSelectie.Add(masina);
+        }
+
+        SoferiPentruSelectie.Clear();
+        foreach (Sofer sofer in _totiSoferii.OrderBy(s => s.Nume))
+        {
+            SoferiPentruSelectie.Add(sofer);
+        }
+    }
+
+    private void NotificaDashboard()
+    {
+        OnPropertyChanged(nameof(TotalMasini));
+        OnPropertyChanged(nameof(MasiniDisponibile));
+        OnPropertyChanged(nameof(MasiniInService));
+        OnPropertyChanged(nameof(TotalSoferi));
+        OnPropertyChanged(nameof(SoferiDisponibili));
+        OnPropertyChanged(nameof(SoferiInCursa));
+        OnPropertyChanged(nameof(TotalCurse));
+        OnPropertyChanged(nameof(CursePlanificate));
+        OnPropertyChanged(nameof(CurseActive));
+    }
+
+    private static bool IntervaleleSeSuprapun(DateTime startA, DateTime sfarsitA, DateTime startB, DateTime sfarsitB)
+    {
+        return startA < sfarsitB && startB < sfarsitA;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

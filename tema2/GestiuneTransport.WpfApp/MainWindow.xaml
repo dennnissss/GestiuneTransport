@@ -4,526 +4,492 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Gestiune Transport - Masini"
-        Height="720"
-        Width="1100"
-        MinHeight="600"
-        MinWidth="820"
+        Title="Gestiune Transport - Fleet Manager"
+        Height="760"
+        Width="1180"
+        MinHeight="680"
+        MinWidth="980"
         WindowStartupLocation="CenterScreen"
-        Background="#F4F7F6">
+        Background="#F3F6F4">
     <Window.Resources>
         <SolidColorBrush x:Key="PrimaryBrush" Color="#176B5B" />
-        <SolidColorBrush x:Key="PrimaryHoverBrush" Color="#125446" />
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#0F4A40" />
         <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="SoftBrush" Color="#EDF5F2" />
         <SolidColorBrush x:Key="MutedTextBrush" Color="#5E6B68" />
         <SolidColorBrush x:Key="ErrorBrush" Color="#B42D2D" />
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="12" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#17211F" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+            <Setter Property="BorderBrush" Value="#DDE6E3" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="18" />
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Padding" Value="10,7" />
-            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="BorderBrush" Value="#CAD8D4" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="Height" Value="38" />
-            <Setter Property="Padding" Value="8,5" />
-            <Setter Property="FontSize" Value="15" />
-            <Setter Property="BorderBrush" Value="#CAD8D4" />
-        </Style>
-
-        <Style TargetType="ListBox">
-            <Setter Property="BorderBrush" Value="#DDE6E3" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="8,4" />
             <Setter Property="FontSize" Value="14" />
+            <Setter Property="BorderBrush" Value="#CAD8D4" />
         </Style>
 
         <Style TargetType="Button">
-            <Setter Property="Height" Value="40" />
-            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="14,0" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush" Value="#CAD8D4" />
-            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="White" />
         </Style>
 
         <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
             <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
         </Style>
 
-        <Style TargetType="RadioButton">
-            <Setter Property="Margin" Value="0,0,18,0" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-
         <Style TargetType="CheckBox">
-            <Setter Property="Margin" Value="0,0,12,8" />
+            <Setter Property="Margin" Value="0,0,14,8" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
-        <Style x:Key="PanelCard" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource PanelBrush}" />
-            <Setter Property="BorderBrush" Value="#DDE6E3" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="20" />
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="MinWidth" Value="128" />
+            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
     </Window.Resources>
 
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Background="#FFFFFF">
-            <MenuItem Header="_Fisier">
-                <MenuItem Header="Reset formular" Click="Reset_Click" />
-                <MenuItem Header="Reset cautare" Click="ResetCautare_Click" />
+        <Border DockPanel.Dock="Top"
+                Background="{StaticResource PrimaryDarkBrush}"
+                Padding="24,18">
+            <Grid>
+                <StackPanel>
+                    <TextBlock Text="Fleet Manager"
+                               Foreground="White"
+                               FontSize="30"
+                               FontWeight="Bold" />
+                    <TextBlock Text="Gestiune rapida pentru masini, soferi si disponibilitate"
+                               Foreground="#D9EEE9"
+                               FontSize="14"
+                               Margin="0,5,0,0" />
+                </StackPanel>
+                <Button Content="Iesire"
+                        HorizontalAlignment="Right"
+                        Width="88"
+                        Click="Iesire_Click" />
+            </Grid>
+        </Border>
+
+        <Menu DockPanel.Dock="Top"
+              Background="White"
+              BorderBrush="#DDE6E3"
+              BorderThickness="0,0,0,1">
+            <MenuItem Header="_Navigare">
+                <MenuItem Header="Dashboard" Click="DashboardMenu_Click" />
+                <MenuItem Header="Masini" Click="MasiniMenu_Click" />
+                <MenuItem Header="Soferi" Click="SoferiMenu_Click" />
+                <MenuItem Header="Curse" Click="CurseMenu_Click" />
+            </MenuItem>
+            <MenuItem Header="_Actiuni">
+                <MenuItem Header="Masina noua" Click="MasinaNoua_Click" />
+                <MenuItem Header="Sofer nou" Click="SoferNou_Click" />
+                <MenuItem Header="Cursa noua" Click="CursaNoua_Click" />
                 <Separator />
                 <MenuItem Header="Iesire" Click="Iesire_Click" />
             </MenuItem>
-            <MenuItem Header="_Operatii">
-                <MenuItem Header="Mod adaugare" Click="SetAdaugare_Click" />
-                <MenuItem Header="Mod editare" Click="SetEditare_Click" />
-            </MenuItem>
         </Menu>
 
-        <TabControl Margin="28">
-            <TabItem Header="Masini">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="16" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="16" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <Border Grid.Row="0"
-                    Background="{StaticResource PrimaryBrush}"
-                    CornerRadius="8"
-                    Padding="24">
-                <StackPanel>
-                    <TextBlock Text="Gestiune masini"
-                               Foreground="White"
-                               FontSize="32"
-                               FontWeight="Bold" />
-                    <TextBlock Text="Adaugare, editare si cautare dupa numar de inmatriculare"
-                               Foreground="#D9EEE9"
-                               FontSize="15"
-                               Margin="0,8,0,0" />
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Row="2" Style="{StaticResource PanelCard}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="12" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="12" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="8" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Text="Cautare nr. inmatriculare"
-                               VerticalAlignment="Center"
-                               Style="{StaticResource FieldLabel}"
-                               Margin="0" />
-                    <TextBox x:Name="SearchTextBox"
-                             Grid.Column="2"
-                             CharacterCasing="Upper"
-                             MinWidth="180"
-                             TextChanged="SearchTextBox_TextChanged" />
-                    <Button Grid.Column="4"
-                            Content="Cauta"
-                            Width="90"
-                            Style="{StaticResource PrimaryButton}"
-                            Click="Cauta_Click" />
-                    <Button Grid.Column="6"
-                            Content="Reset"
-                            Width="82"
-                            Click="ResetCautare_Click" />
-                </Grid>
-            </Border>
-
-            <Grid Grid.Row="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.05*" MinWidth="330" />
-                    <ColumnDefinition Width="18" />
-                    <ColumnDefinition Width="1.8*" MinWidth="430" />
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Style="{StaticResource PanelCard}">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <StackPanel>
-                            <TextBlock x:Name="FormTitleTextBlock"
-                                       Text="Date masina"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#17211F"
-                                       Margin="0,0,0,14" />
-
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-                                <RadioButton x:Name="AdaugareRadioButton"
-                                             Content="Adaugare"
-                                             GroupName="ModOperare"
-                                             IsChecked="True"
-                                             Checked="ModOperare_Checked" />
-                                <RadioButton x:Name="EditareRadioButton"
-                                             Content="Editare"
-                                             GroupName="ModOperare"
-                                             Checked="ModOperare_Checked" />
-                            </StackPanel>
-
-                            <TextBlock x:Name="NrInmatriculareLabel"
-                                       Text="Numar inmatriculare"
-                                       Style="{StaticResource FieldLabel}" />
-                            <TextBox x:Name="NrInmatriculareTextBox"
-                                     CharacterCasing="Upper"
-                                     MaxLength="12"
-                                     TextChanged="Camp_TextChanged" />
-
-                            <TextBlock x:Name="ModelLabel"
-                                       Text="Model"
-                                       Style="{StaticResource FieldLabel}"
-                                       Margin="0,16,0,6" />
-                            <TextBox x:Name="ModelTextBox"
-                                     MaxLength="40"
-                                     TextChanged="Camp_TextChanged" />
-
-                            <TextBlock x:Name="KilometrajLabel"
-                                       Text="Kilometraj"
-                                       Style="{StaticResource FieldLabel}"
-                                       Margin="0,16,0,6" />
-                            <TextBox x:Name="KilometrajTextBox"
-                                     TextChanged="Camp_TextChanged" />
-
-                            <TextBlock x:Name="CuloareLabel"
-                                       Text="Culoare"
-                                       Style="{StaticResource FieldLabel}"
-                                       Margin="0,16,0,6" />
-                            <ComboBox x:Name="CuloareComboBox"
-                                      SelectionChanged="Camp_SelectionChanged" />
-
-                            <TextBlock Text="Optiuni"
-                                       Style="{StaticResource FieldLabel}"
-                                       Margin="0,18,0,8" />
-                            <UniformGrid Columns="2">
-                                <CheckBox x:Name="AerConditionatCheckBox"
-                                          Content="Aer conditionat" />
-                                <CheckBox x:Name="NavigatieCheckBox"
-                                          Content="Navigatie" />
-                                <CheckBox x:Name="SenzoriParcareCheckBox"
-                                          Content="Senzori parcare" />
-                                <CheckBox x:Name="ScauneIncalziteCheckBox"
-                                          Content="Scaune incalzite" />
-                            </UniformGrid>
-
-                            <Border x:Name="ErrorPanel"
-                                    Background="#FFF1F1"
-                                    BorderBrush="#F0B8B8"
-                                    BorderThickness="1"
-                                    CornerRadius="8"
-                                    Padding="12"
-                                    Margin="0,20,0,16"
-                                    Visibility="Collapsed">
-                                <TextBlock x:Name="ErrorTextBlock"
-                                           Foreground="{StaticResource ErrorBrush}"
-                                           TextWrapping="Wrap" />
-                            </Border>
-
-                            <StackPanel Orientation="Horizontal">
-                                <Button x:Name="SalveazaButton"
-                                        Content="Adauga masina"
-                                        MinWidth="150"
-                                        Style="{StaticResource PrimaryButton}"
-                                        Click="SalveazaMasina_Click" />
-                                <Button Content="Reset"
-                                        Width="92"
-                                        Margin="10,0,0,0"
-                                        Click="Reset_Click" />
-                            </StackPanel>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Border>
-
-                <Border Grid.Column="2" Style="{StaticResource PanelCard}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="14" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="18" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <StackPanel>
-                            <TextBlock Text="Masini"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="#17211F" />
-                            <TextBlock Text="Selectati o masina si alegeti modul Editare pentru a-i modifica datele."
-                                       Foreground="{StaticResource MutedTextBrush}"
-                                       FontSize="14"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap" />
-                        </StackPanel>
-
-                        <Grid Grid.Row="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="180" />
-                                <ColumnDefinition Width="14" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="8" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Text="Selectie rapida"
-                                           Style="{StaticResource FieldLabel}" />
-                                <ListBox x:Name="MasiniListBox"
-                                         Grid.Row="2"
-                                         ItemsSource="{Binding Masini}"
-                                         DisplayMemberPath="NrInmatriculare"
-                                         SelectionChanged="MasiniListBox_SelectionChanged" />
-                            </Grid>
-
-                            <DataGrid x:Name="MasiniDataGrid"
-                                      Grid.Column="2"
-                                      ItemsSource="{Binding Masini}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      IsReadOnly="True"
-                                      SelectionMode="Single"
-                                      SelectionChanged="MasiniDataGrid_SelectionChanged"
-                                      GridLinesVisibility="Horizontal"
-                                      HeadersVisibility="Column"
-                                      BorderBrush="#DDE6E3"
-                                      BorderThickness="1"
-                                      RowHeaderWidth="0">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Nr. inmatriculare"
-                                                        Binding="{Binding NrInmatriculare}"
-                                                        Width="150" />
-                                    <DataGridTextColumn Header="Model"
-                                                        Binding="{Binding Model}"
-                                                        Width="*" />
-                                    <DataGridTextColumn Header="Kilometraj"
-                                                        Binding="{Binding Kilometraj, StringFormat={}{0:N0} km}"
-                                                        Width="130" />
-                                    <DataGridTextColumn Header="Culoare"
-                                                        Binding="{Binding Culoare}"
-                                                        Width="110" />
-                                    <DataGridTextColumn Header="Optiuni"
-                                                        Binding="{Binding Optiuni}"
-                                                        Width="190" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Grid>
-
-                        <Border Grid.Row="4"
-                                Background="#EDF5F2"
-                                BorderBrush="#CFE1DB"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="14">
-                            <TextBlock Text="{Binding Rezumat}"
-                                       Foreground="{StaticResource PrimaryBrush}"
-                                       FontSize="15"
-                                       FontWeight="SemiBold" />
-                        </Border>
-                    </Grid>
-                </Border>
-            </Grid>
-        </Grid>
-            </TabItem>
-
-            <TabItem Header="Soferi">
-                <Grid>
+        <TabControl x:Name="MainTabControl" Margin="22" TabStripPlacement="Left">
+            <TabItem x:Name="DashboardTab" Header="Dashboard">
+                <Grid Margin="18,0,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="16" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="16" />
+                        <RowDefinition Height="18" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Border Grid.Row="0"
-                            Background="{StaticResource PrimaryBrush}"
-                            CornerRadius="8"
-                            Padding="24">
-                        <StackPanel>
-                            <TextBlock Text="Gestiune soferi"
-                                       Foreground="White"
-                                       FontSize="32"
-                                       FontWeight="Bold" />
-                            <TextBlock Text="CRUD complet pentru a doua entitate din aplicatie"
-                                       Foreground="#D9EEE9"
-                                       FontSize="15"
-                                       Margin="0,8,0,0" />
-                        </StackPanel>
-                    </Border>
+                    <TextBlock Text="Privire de ansamblu" Style="{StaticResource SectionTitle}" />
 
-                    <Border Grid.Row="2" Style="{StaticResource PanelCard}">
+                    <UniformGrid Grid.Row="2" Columns="3" Rows="3">
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Masini totale" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding TotalMasini}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Masini disponibile" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding MasiniDisponibile}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Masini in service" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding MasiniInService}" FontSize="34" FontWeight="Bold" Foreground="#B46A1F" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Soferi totali" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding TotalSoferi}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Soferi disponibili" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding SoferiDisponibili}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Soferi in cursa" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding SoferiInCursa}" FontSize="34" FontWeight="Bold" Foreground="#2E6E9E" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0">
+                            <StackPanel>
+                                <TextBlock Text="Curse totale" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding TotalCurse}" FontSize="34" FontWeight="Bold" Foreground="{StaticResource PrimaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}" Margin="0,0,14,0">
+                            <StackPanel>
+                                <TextBlock Text="Curse planificate" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding CursePlanificate}" FontSize="34" FontWeight="Bold" Foreground="#2E6E9E" />
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Card}">
+                            <StackPanel>
+                                <TextBlock Text="Curse active" Style="{StaticResource FieldLabel}" />
+                                <TextBlock Text="{Binding CurseActive}" FontSize="34" FontWeight="Bold" Foreground="#B46A1F" />
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="MasiniTab" Header="Masini">
+                <Grid Margin="18,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="14" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource Card}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="2*" />
                                 <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="150" />
                                 <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="8" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Cautare dupa nume"
-                                       VerticalAlignment="Center"
-                                       Style="{StaticResource FieldLabel}"
-                                       Margin="0" />
-                            <TextBox x:Name="SoferSearchTextBox"
-                                     Grid.Column="2"
+                            <TextBox x:Name="MasinaSearchTextBox"
                                      MinWidth="180"
-                                     TextChanged="SoferSearchTextBox_TextChanged" />
-                            <Button Grid.Column="4"
-                                    Content="Cauta"
-                                    Width="90"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Click="CautaSofer_Click" />
+                                     TextChanged="MasinaFiltru_Changed"
+                                     ToolTip="Cauta dupa numar, marca sau model" />
+                            <ComboBox x:Name="MasinaMarcaFilterComboBox"
+                                      Grid.Column="2"
+                                      SelectionChanged="MasinaFiltru_Changed" />
+                            <ComboBox x:Name="MasinaStatusFilterComboBox"
+                                      Grid.Column="4"
+                                      SelectionChanged="MasinaFiltru_Changed" />
                             <Button Grid.Column="6"
-                                    Content="Reset"
-                                    Width="82"
-                                    Click="ResetCautareSofer_Click" />
+                                    Content="Reseteaza"
+                                    Click="ResetFiltreMasini_Click" />
+                            <Button Grid.Column="8"
+                                    Content="Adauga nou"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Click="MasinaNoua_Click" />
                         </Grid>
                     </Border>
 
-                    <Grid Grid.Row="4">
+                    <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.05*" MinWidth="330" />
-                            <ColumnDefinition Width="18" />
-                            <ColumnDefinition Width="1.8*" MinWidth="430" />
+                            <ColumnDefinition Width="380" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource PanelCard}">
+                        <Border Style="{StaticResource Card}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
-                                    <TextBlock Text="Date sofer"
-                                               FontSize="22"
-                                               FontWeight="Bold"
-                                               Foreground="#17211F"
-                                               Margin="0,0,0,14" />
+                                    <TextBlock Text="Detalii masina" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
 
-                                    <TextBlock x:Name="SoferIdLabel"
-                                               Text="ID sofer"
-                                               Style="{StaticResource FieldLabel}" />
-                                    <TextBox x:Name="SoferIdTextBox"
-                                             TextChanged="SoferCamp_TextChanged" />
+                                    <TextBlock x:Name="NrInmatriculareLabel" Text="Numar inmatriculare" Style="{StaticResource FieldLabel}" />
+                                    <TextBox x:Name="NrInmatriculareTextBox" CharacterCasing="Upper" MaxLength="12" TextChanged="MasinaCamp_Changed" />
 
-                                    <TextBlock x:Name="SoferNumeLabel"
-                                               Text="Nume"
-                                               Style="{StaticResource FieldLabel}"
-                                               Margin="0,16,0,6" />
-                                    <TextBox x:Name="SoferNumeTextBox"
-                                             MaxLength="50"
-                                             TextChanged="SoferCamp_TextChanged" />
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="MarcaLabel" Text="Marca" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="MarcaComboBox" SelectionChanged="MarcaComboBox_SelectionChanged" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="ModelLabel" Text="Model" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="ModelComboBox" SelectionChanged="MasinaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
 
-                                    <TextBlock x:Name="SoferKmLabel"
-                                               Text="Total kilometri parcursi"
-                                               Style="{StaticResource FieldLabel}"
-                                               Margin="0,16,0,6" />
-                                    <TextBox x:Name="SoferKmTextBox"
-                                             TextChanged="SoferCamp_TextChanged" />
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="AnLabel" Text="An fabricatie" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="AnComboBox" SelectionChanged="MasinaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="KilometrajLabel" Text="Kilometraj" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="KilometrajTextBox" TextChanged="MasinaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
 
-                                    <Border x:Name="SoferErrorPanel"
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="CuloareLabel" Text="Culoare" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="CuloareComboBox" SelectionChanged="MasinaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="CombustibilLabel" Text="Combustibil" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="CombustibilComboBox" SelectionChanged="MasinaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock x:Name="StatusMasinaLabel" Text="Status" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <ComboBox x:Name="StatusMasinaComboBox" SelectionChanged="MasinaCamp_Changed" />
+
+                                    <TextBlock Text="Optiuni" Style="{StaticResource FieldLabel}" Margin="0,16,0,8" />
+                                    <WrapPanel>
+                                        <CheckBox x:Name="AerConditionatCheckBox" Content="Aer conditionat" />
+                                        <CheckBox x:Name="NavigatieCheckBox" Content="Navigatie" />
+                                        <CheckBox x:Name="SenzoriParcareCheckBox" Content="Senzori parcare" />
+                                        <CheckBox x:Name="ScauneIncalziteCheckBox" Content="Scaune incalzite" />
+                                        <CheckBox x:Name="CutieAutomataCheckBox" Content="Cutie automata" />
+                                        <CheckBox x:Name="CameraMarsarierCheckBox" Content="Camera marsarier" />
+                                    </WrapPanel>
+
+                                    <Border x:Name="MasinaMessagePanel"
                                             Background="#FFF1F1"
                                             BorderBrush="#F0B8B8"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="12"
-                                            Margin="0,20,0,16"
+                                            Margin="0,16,0,14"
                                             Visibility="Collapsed">
-                                        <TextBlock x:Name="SoferErrorTextBlock"
+                                        <TextBlock x:Name="MasinaMessageTextBlock"
                                                    Foreground="{StaticResource ErrorBrush}"
                                                    TextWrapping="Wrap" />
                                     </Border>
 
                                     <WrapPanel>
-                                        <Button Content="Adauga"
-                                                MinWidth="104"
+                                        <Button Content="Salveaza"
+                                                MinWidth="110"
                                                 Style="{StaticResource PrimaryButton}"
-                                                Click="AdaugaSofer_Click" />
-                                        <Button Content="Actualizeaza"
-                                                MinWidth="120"
-                                                Margin="10,0,0,0"
-                                                Click="ActualizeazaSofer_Click" />
+                                                Click="SalveazaMasina_Click" />
                                         <Button Content="Sterge"
-                                                MinWidth="92"
-                                                Margin="10,0,0,0"
-                                                Click="StergeSofer_Click" />
-                                        <Button Content="Reset"
-                                                MinWidth="92"
-                                                Margin="10,0,0,0"
-                                                Click="ResetSofer_Click" />
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="StergeMasina_Click" />
+                                        <Button Content="Curata"
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="MasinaNoua_Click" />
                                     </WrapPanel>
                                 </StackPanel>
                             </ScrollViewer>
                         </Border>
 
-                        <Border Grid.Column="2" Style="{StaticResource PanelCard}">
+                        <Border Grid.Column="2" Style="{StaticResource Card}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="12" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="12" />
+                                    <RowDefinition Height="10" />
                                     <RowDefinition Height="*" />
-                                    <RowDefinition Height="18" />
-                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
+                                <TextBlock Text="{Binding RezumatMasini}" Style="{StaticResource SectionTitle}" />
+                                <DataGrid x:Name="MasiniDataGrid"
+                                          Grid.Row="2"
+                                          ItemsSource="{Binding Masini}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True"
+                                          SelectionMode="Single"
+                                          SelectionChanged="MasiniDataGrid_SelectionChanged"
+                                          GridLinesVisibility="Horizontal"
+                                          RowHeaderWidth="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nr." Binding="{Binding NrInmatriculare}" Width="115" />
+                                        <DataGridTextColumn Header="Marca" Binding="{Binding Marca}" Width="115" />
+                                        <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="*" />
+                                        <DataGridTextColumn Header="An" Binding="{Binding AnFabricatie}" Width="70" />
+                                        <DataGridTextColumn Header="Km" Binding="{Binding Kilometraj, StringFormat={}{0:N0}}" Width="95" />
+                                        <DataGridTextColumn Header="Combustibil" Binding="{Binding Combustibil}" Width="100" />
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="SoferiTab" Header="Soferi">
+                <Grid Margin="18,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="14" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="SoferSearchTextBox" TextChanged="SoferFiltru_Changed" ToolTip="Cauta dupa nume, telefon sau ID" />
+                            <ComboBox x:Name="SoferStatusFilterComboBox" Grid.Column="2" SelectionChanged="SoferFiltru_Changed" />
+                            <Button Grid.Column="4" Content="Reseteaza" Click="ResetFiltreSoferi_Click" />
+                            <Button Grid.Column="6" Content="Adauga nou" Style="{StaticResource PrimaryButton}" Click="SoferNou_Click" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="360" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource Card}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
-                                    <TextBlock Text="Soferi"
-                                               FontSize="22"
-                                               FontWeight="Bold"
-                                               Foreground="#17211F" />
-                                    <TextBlock Text="Selectati un sofer din ComboBox sau din tabel pentru modificare/stergere."
-                                               Foreground="{StaticResource MutedTextBrush}"
-                                               FontSize="14"
-                                               Margin="0,6,0,0"
-                                               TextWrapping="Wrap" />
+                                    <TextBlock Text="Detalii sofer" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
+
+                                    <TextBlock x:Name="SoferIdLabel" Text="ID sofer" Style="{StaticResource FieldLabel}" />
+                                    <TextBox x:Name="SoferIdTextBox" TextChanged="SoferCamp_Changed" />
+
+                                    <TextBlock x:Name="SoferNumeLabel" Text="Nume" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <TextBox x:Name="SoferNumeTextBox" MaxLength="50" TextChanged="SoferCamp_Changed" />
+
+                                    <TextBlock x:Name="SoferTelefonLabel" Text="Telefon" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <TextBox x:Name="SoferTelefonTextBox" MaxLength="18" TextChanged="SoferCamp_Changed" />
+
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="SoferPermisLabel" Text="Permis" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="SoferPermisComboBox" SelectionChanged="SoferCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="SoferStatusLabel" Text="Status" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="SoferStatusComboBox" SelectionChanged="SoferCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock x:Name="SoferKmLabel" Text="Kilometri parcursi" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <TextBox x:Name="SoferKmTextBox" TextChanged="SoferCamp_Changed" />
+
+                                    <Border x:Name="SoferMessagePanel"
+                                            Background="#FFF1F1"
+                                            BorderBrush="#F0B8B8"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="12"
+                                            Margin="0,16,0,14"
+                                            Visibility="Collapsed">
+                                        <TextBlock x:Name="SoferMessageTextBlock"
+                                                   Foreground="{StaticResource ErrorBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <WrapPanel>
+                                        <Button Content="Salveaza"
+                                                MinWidth="110"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="SalveazaSofer_Click" />
+                                        <Button Content="Sterge"
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="StergeSofer_Click" />
+                                        <Button Content="Curata"
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="SoferNou_Click" />
+                                    </WrapPanel>
                                 </StackPanel>
+                            </ScrollViewer>
+                        </Border>
 
-                                <Grid Grid.Row="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="12" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+                        <Border Grid.Column="2" Style="{StaticResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
 
-                                    <TextBlock Text="Selectie sofer"
-                                               Style="{StaticResource FieldLabel}"
-                                               VerticalAlignment="Center"
-                                               Margin="0" />
-                                    <ComboBox x:Name="SoferComboBox"
-                                              Grid.Column="2"
-                                              ItemsSource="{Binding Soferi}"
-                                              DisplayMemberPath="Nume"
-                                              SelectionChanged="SoferComboBox_SelectionChanged" />
-                                </Grid>
-
+                                <TextBlock Text="{Binding RezumatSoferi}" Style="{StaticResource SectionTitle}" />
                                 <DataGrid x:Name="SoferDataGrid"
-                                          Grid.Row="4"
+                                          Grid.Row="2"
                                           ItemsSource="{Binding Soferi}"
                                           AutoGenerateColumns="False"
                                           CanUserAddRows="False"
@@ -531,34 +497,235 @@
                                           SelectionMode="Single"
                                           SelectionChanged="SoferDataGrid_SelectionChanged"
                                           GridLinesVisibility="Horizontal"
-                                          HeadersVisibility="Column"
-                                          BorderBrush="#DDE6E3"
-                                          BorderThickness="1"
                                           RowHeaderWidth="0">
                                     <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID"
-                                                            Binding="{Binding Id}"
-                                                            Width="80" />
-                                        <DataGridTextColumn Header="Nume"
-                                                            Binding="{Binding Nume}"
-                                                            Width="*" />
-                                        <DataGridTextColumn Header="Kilometri"
-                                                            Binding="{Binding TotalKilometriParcursi, StringFormat={}{0:N0} km}"
-                                                            Width="150" />
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70" />
+                                        <DataGridTextColumn Header="Nume" Binding="{Binding Nume}" Width="*" />
+                                        <DataGridTextColumn Header="Telefon" Binding="{Binding Telefon}" Width="130" />
+                                        <DataGridTextColumn Header="Permis" Binding="{Binding CategoriePermis}" Width="90" />
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" />
+                                        <DataGridTextColumn Header="Km" Binding="{Binding TotalKilometriParcursi, StringFormat={}{0:N0}}" Width="100" />
                                     </DataGrid.Columns>
                                 </DataGrid>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
 
-                                <Border Grid.Row="6"
-                                        Background="#EDF5F2"
-                                        BorderBrush="#CFE1DB"
-                                        BorderThickness="1"
-                                        CornerRadius="8"
-                                        Padding="14">
-                                    <TextBlock Text="{Binding RezumatSoferi}"
-                                               Foreground="{StaticResource PrimaryBrush}"
-                                               FontSize="15"
-                                               FontWeight="SemiBold" />
-                                </Border>
+            <TabItem x:Name="CurseTab" Header="Curse">
+                <Grid Margin="18,0,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="14" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="170" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="CursaSearchTextBox"
+                                     TextChanged="CursaFiltru_Changed"
+                                     ToolTip="Cauta dupa ID, ruta, masina sau sofer" />
+                            <ComboBox x:Name="CursaTipFilterComboBox"
+                                      Grid.Column="2"
+                                      SelectionChanged="CursaFiltru_Changed" />
+                            <ComboBox x:Name="CursaStatusFilterComboBox"
+                                      Grid.Column="4"
+                                      SelectionChanged="CursaFiltru_Changed" />
+                            <Button Grid.Column="6"
+                                    Content="Reseteaza"
+                                    Click="ResetFiltreCurse_Click" />
+                            <Button Grid.Column="8"
+                                    Content="Adauga nou"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Click="CursaNoua_Click" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="420" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Style="{StaticResource Card}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Text="Detalii cursa" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="CursaIdLabel" Text="ID cursa" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="CursaIdTextBox" TextChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="CursaStatusLabel" Text="Status" Style="{StaticResource FieldLabel}" />
+                                            <ComboBox x:Name="CursaStatusComboBox" SelectionChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock x:Name="LocPlecareLabel" Text="Plecare" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <TextBox x:Name="LocPlecareTextBox" MaxLength="60" TextChanged="CursaCamp_Changed" />
+
+                                    <TextBlock x:Name="DestinatieLabel" Text="Destinatie" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <TextBox x:Name="DestinatieTextBox" MaxLength="60" TextChanged="CursaCamp_Changed" />
+
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="96" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="DataPlecareLabel" Text="Data plecare" Style="{StaticResource FieldLabel}" />
+                                            <DatePicker x:Name="DataPlecareDatePicker" SelectedDateChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="OraPlecareLabel" Text="Ora" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="OraPlecareTextBox" TextChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="96" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="DataSosireLabel" Text="Data sosire" Style="{StaticResource FieldLabel}" />
+                                            <DatePicker x:Name="DataSosireDatePicker" SelectedDateChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="OraSosireLabel" Text="Ora" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="OraSosireTextBox" TextChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock x:Name="CursaMasinaLabel" Text="Masina" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <ComboBox x:Name="CursaMasinaComboBox"
+                                              DisplayMemberPath="DescriereScurta"
+                                              SelectionChanged="CursaCamp_Changed" />
+
+                                    <TextBlock x:Name="CursaSoferLabel" Text="Sofer" Style="{StaticResource FieldLabel}" Margin="0,14,0,5" />
+                                    <ComboBox x:Name="CursaSoferComboBox"
+                                              DisplayMemberPath="DescriereScurta"
+                                              SelectionChanged="CursaCamp_Changed" />
+
+                                    <TextBlock x:Name="CursaTipLabel" Text="Tip cursa" Style="{StaticResource FieldLabel}" Margin="0,14,0,8" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton x:Name="CursaInternaRadioButton"
+                                                     Content="Interna"
+                                                     GroupName="TipCursa"
+                                                     Margin="0,0,18,0"
+                                                     Checked="CursaCamp_Changed" />
+                                        <RadioButton x:Name="CursaInternationalaRadioButton"
+                                                     Content="Internationala"
+                                                     GroupName="TipCursa"
+                                                     Checked="CursaCamp_Changed" />
+                                    </StackPanel>
+
+                                    <Grid Margin="0,14,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock x:Name="DistantaLabel" Text="Distanta km" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="DistantaTextBox" TextChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock x:Name="CostLabel" Text="Cost estimativ" Style="{StaticResource FieldLabel}" />
+                                            <TextBox x:Name="CostTextBox" TextChanged="CursaCamp_Changed" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Border x:Name="CursaMessagePanel"
+                                            Background="#FFF1F1"
+                                            BorderBrush="#F0B8B8"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            Padding="12"
+                                            Margin="0,16,0,14"
+                                            Visibility="Collapsed">
+                                        <TextBlock x:Name="CursaMessageTextBlock"
+                                                   Foreground="{StaticResource ErrorBrush}"
+                                                   TextWrapping="Wrap" />
+                                    </Border>
+
+                                    <WrapPanel>
+                                        <Button Content="Salveaza"
+                                                MinWidth="110"
+                                                Style="{StaticResource PrimaryButton}"
+                                                Click="SalveazaCursa_Click" />
+                                        <Button Content="Sterge"
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="StergeCursa_Click" />
+                                        <Button Content="Curata"
+                                                MinWidth="90"
+                                                Margin="8,0,0,0"
+                                                Click="CursaNoua_Click" />
+                                    </WrapPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+
+                        <Border Grid.Column="2" Style="{StaticResource Card}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="10" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="{Binding RezumatCurse}" Style="{StaticResource SectionTitle}" />
+                                <ListBox x:Name="CurseQuickListBox"
+                                          Grid.Row="2"
+                                          ItemsSource="{Binding Curse}"
+                                          DisplayMemberPath="Ruta"
+                                          MaxHeight="82"
+                                          SelectionChanged="CurseQuickListBox_SelectionChanged" />
+                                <DataGrid x:Name="CurseDataGrid"
+                                          Grid.Row="4"
+                                          ItemsSource="{Binding Curse}"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          IsReadOnly="True"
+                                          SelectionMode="Single"
+                                          SelectionChanged="CurseDataGrid_SelectionChanged"
+                                          GridLinesVisibility="Horizontal"
+                                          RowHeaderWidth="0">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60" />
+                                        <DataGridTextColumn Header="Ruta" Binding="{Binding Ruta}" Width="*" />
+                                        <DataGridTextColumn Header="Plecare" Binding="{Binding DataPlecare, StringFormat={}{0:dd.MM HH:mm}}" Width="105" />
+                                        <DataGridTextColumn Header="Masina" Binding="{Binding MasinaAlocata.NrInmatriculare}" Width="95" />
+                                        <DataGridTextColumn Header="Sofer" Binding="{Binding SoferAlocat.Nume}" Width="120" />
+                                        <DataGridTextColumn Header="Tip" Binding="{Binding Tip}" Width="105" />
+                                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="115" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
                             </Grid>
                         </Border>
                     </Grid>
