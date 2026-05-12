@@ -581,6 +581,11 @@ public partial class MainWindow : Window
         }
     }
 
+    private void CurseDataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        DeschideDetaliiCursaSelectata();
+    }
+
     private void CurseQuickListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (CurseQuickListBox.SelectedItem is Cursa cursa)
@@ -608,6 +613,11 @@ public partial class MainWindow : Window
         CursaStatusFilterComboBox.SelectedIndex = -1;
         CursaTipFilterComboBox.SelectedIndex = -1;
         _viewModel.ResetFiltreCurse();
+    }
+
+    private void CursaDetalii_Click(object sender, RoutedEventArgs e)
+    {
+        DeschideDetaliiCursaSelectata();
     }
 
     private void CursaCamp_Changed(object sender, EventArgs e)
@@ -1094,6 +1104,23 @@ public partial class MainWindow : Window
     private void CurseMenu_Click(object sender, RoutedEventArgs e)
     {
         MainTabControl.SelectedItem = CurseTab;
+    }
+
+    private void DeschideDetaliiCursaSelectata()
+    {
+        Cursa? cursa = CurseDataGrid.SelectedItem as Cursa ?? CurseQuickListBox.SelectedItem as Cursa;
+        if (cursa == null)
+        {
+            AfiseazaToast("Selecteaza o cursa pentru detalii.");
+            MainTabControl.SelectedItem = CurseTab;
+            return;
+        }
+
+        var window = new CursaDetailsWindow(cursa)
+        {
+            Owner = this
+        };
+        window.ShowDialog();
     }
 
     private void Iesire_Click(object sender, RoutedEventArgs e)

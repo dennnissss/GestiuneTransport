@@ -364,6 +364,7 @@
                     <MenuItem Header="Masina noua" Click="MasinaNoua_Click" />
                     <MenuItem Header="Sofer nou" Click="SoferNou_Click" />
                     <MenuItem Header="Cursa noua" Click="CursaNoua_Click" />
+                    <MenuItem Header="Detalii cursa selectata" Click="CursaDetalii_Click" />
                     <Separator />
                     <MenuItem Header="Iesire" Click="Iesire_Click" />
                 </MenuItem>
@@ -1015,7 +1016,17 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Text="{Binding RezumatCurse}" Style="{StaticResource SectionTitle}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding RezumatCurse}" Style="{StaticResource SectionTitle}" />
+                                        <Button Grid.Column="1"
+                                                Content="Vezi detalii"
+                                                MinWidth="120"
+                                                Click="CursaDetalii_Click" />
+                                    </Grid>
                                     <ListBox x:Name="CurseQuickListBox"
                                              Grid.Row="2"
                                              ItemsSource="{Binding Curse}"
@@ -1029,6 +1040,7 @@
                                               CanUserAddRows="False"
                                               IsReadOnly="True"
                                               SelectionMode="Single"
+                                              MouseDoubleClick="CurseDataGrid_MouseDoubleClick"
                                               SelectionChanged="CurseDataGrid_SelectionChanged">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="55" />

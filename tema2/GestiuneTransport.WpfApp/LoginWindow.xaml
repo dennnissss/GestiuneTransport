@@ -1,0 +1,166 @@
+<Window x:Class="GestiuneTransport.WpfApp.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gestiune Transport - Autentificare"
+        Height="520"
+        Width="760"
+        MinHeight="480"
+        MinWidth="700"
+        WindowStartupLocation="CenterScreen"
+        Background="#F4F7F8"
+        FontFamily="Segoe UI">
+    <Window.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#126B61" />
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#102B35" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#647571" />
+        <SolidColorBrush x:Key="LineBrush" Color="#DDE7E9" />
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
+
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="26" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.12" Color="#27413F" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="#F9FCFC" />
+            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style TargetType="PasswordBox">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Background" Value="#F9FCFC" />
+            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="40" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F4F7F8" Offset="0" />
+                <GradientStop Color="#E7F1F0" Offset="0.58" />
+                <GradientStop Color="#F7E8C6" Offset="1" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid Margin="46">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.05*" />
+                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="0.95*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Gestiune Transport"
+                           FontSize="34"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource PrimaryDarkBrush}"
+                           TextWrapping="Wrap" />
+                <TextBlock Text="Panou operational pentru flota, soferi si curse."
+                           FontSize="16"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,12,0,0" />
+                <Border Background="#143E43"
+                        CornerRadius="8"
+                        Padding="16"
+                        Margin="0,26,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Cont demonstrativ"
+                                   Foreground="#B9D7D4"
+                                   FontSize="12"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="admin / admin123"
+                                   Foreground="White"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Margin="0,6,0,0" />
+                        <TextBlock Text="Creat automat daca fisierul de utilizatori lipseste."
+                                   Foreground="#D7E7E4"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border Grid.Column="2"
+                    Style="{StaticResource Card}"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="Autentificare"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource PrimaryDarkBrush}" />
+                    <TextBlock Text="Introdu datele pentru acces in aplicatie."
+                               Foreground="{StaticResource MutedTextBrush}"
+                               Margin="0,6,0,22" />
+
+                    <TextBlock Text="Utilizator" Style="{StaticResource FieldLabel}" />
+                    <TextBox x:Name="UsernameTextBox"
+                             Text="admin"
+                             KeyDown="LoginField_KeyDown"
+                             Margin="0,0,0,14" />
+
+                    <TextBlock Text="Parola" Style="{StaticResource FieldLabel}" />
+                    <PasswordBox x:Name="PasswordBox"
+                                 Password="admin123"
+                                 KeyDown="LoginField_KeyDown"
+                                 Margin="0,0,0,18" />
+
+                    <Border x:Name="LoginMessagePanel"
+                            BorderBrush="#F0B6B6"
+                            Background="#FFF1F1"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="10"
+                            Margin="0,0,0,14"
+                            Visibility="Collapsed">
+                        <TextBlock x:Name="LoginMessageTextBlock"
+                                   Foreground="#B42D2D"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <Button x:Name="LoginButton"
+                            Content="Intra in aplicatie"
+                            Style="{StaticResource PrimaryButton}"
+                            IsDefault="True"
+                            Click="LoginButton_Click" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

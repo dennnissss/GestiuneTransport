@@ -49,3 +49,11 @@ Datele sunt salvate in fisiere text prin proiectul `GestiuneTransport.StocareDat
 - `soferi.txt` pentru soferi.
 - `curse.txt` pentru curse.
 - `intervale.txt` pentru intervale de lucru.
+- `utilizatori.txt` pentru autentificare.
+
+## Autentificare
+
+La prima pornire se creeaza automat un cont demonstrativ:
+
+- utilizator: `admin`
+- parola: `admin123`
