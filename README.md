@@ -1,41 +1,46 @@
-# 🚛 Gestiune Transport 
+# GestiuneTransport
 
-![C#](https://img.shields.io/badge/C%23-Language-blueviolet)
-![.NET Core](https://img.shields.io/badge/.NET-Core--LTS-blue)
-![License](https://img.shields.io/badge/Status-In%20Development-green)
+Aplicatie C# pentru gestionarea unei firme de transport. Proiectul include modele de domeniu, stocare in fisiere text, logica de business, o aplicatie consola si o interfata WPF.
 
-Sistem robust de management pentru flote de transport, conceput pentru eficientizarea evidenței personalului și a logisticii interne. Aplicația oferă o interfață rapidă în consolă, optimizată pentru procesarea volumelor de date.
+## Structura
 
----
+- `GestiuneTransport.sln` - solutia principala care trebuie deschisa in Visual Studio.
+- `tema2/GestiuneTransport.Models` - entitatile aplicatiei: `Sofer`, `Masina`, `IntervalLucru`.
+- `tema2/GestiuneTransport.StocareDate` - salvare si incarcare din fisiere text.
+- `tema2/GestiuneTransport.BusinessLogic` - operatii de cautare, adaugare, modificare si stergere.
+- `tema2/GestiuneTransport.ConsoleApp` - varianta de consola.
+- `tema2/GestiuneTransport.WpfApp` - interfata grafica WPF.
+- `docs/WPF-HotReload.md` - demonstratie pentru XAML Hot Reload.
 
-### 🚀 Funcționalități Core
+## Functionalitati WPF
 
-* ✅ **Arhitectură Scalabilă**: Gestiune dinamică a entităților de tip șofer folosind colecții generice.
-* 🔍 **Motor de Căutare**: Algoritm de filtrare instantanee (case-insensitive) pentru localizarea rapidă a personalului.
-* 📋 **Sistem de Raportare**: Generarea listelor complete de angajați cu detalii de identificare.
-* 🛡️ **Data Integrity**: Mecanisme de validare a input-ului pentru prevenirea erorilor de sistem.
+- CRUD pentru `Masina`.
+- CRUD pentru `Sofer`, a doua entitate din aplicatia proprie.
+- Cautare masini dupa numar de inmatriculare.
+- Cautare soferi dupa nume.
+- Validare date introduse si marcarea campurilor invalide.
+- Controale WPF folosite: `Menu`, `TabControl`, `Grid`, `StackPanel`, `TextBox`, `ComboBox`, `ListBox`, `CheckBox`, `RadioButton`, `DataGrid`.
+- Binding pentru colectii si texte de stare, de exemplu `ItemsSource="{Binding Soferi}"`, `ItemsSource="{Binding Masini}"`, `Text="{Binding RezumatSoferi}"`.
 
----
+## Rulare
 
-### 🕹️ Consola de Control
+Din linia de comanda:
 
-Interfața permite următoarele operațiuni rapide:
+```powershell
+dotnet build GestiuneTransport.sln
+dotnet run --project .\tema2\GestiuneTransport.WpfApp\GestiuneTransport.WpfApp.csproj
+```
 
-| Tastă | Comandă | Descriere Funcțională |
-| :--- | :--- | :--- |
-| **1** | `Înregistrare` | Adăugarea unui nou profil de șofer în baza de date. |
-| **2** | `Inventar` | Afișarea tuturor înregistrărilor active din sistem. |
-| **3** | `Interogare` | Căutare avansată după criterii nominative. |
-| **X** | `Exit` | Închiderea sesiunii de lucru și eliberarea resurselor. |
+In Visual Studio:
 
----
+1. Deschide `GestiuneTransport.sln`.
+2. Seteaza `GestiuneTransport.WpfApp` ca startup project.
+3. Porneste aplicatia cu `F5`.
 
-### 🛠️ Detalii Tehnice
+## Persistenta
 
-* **Language**: C# 10.0+
-* **Framework**: .NET 6.0 / 8.0
-* **Data Storage**: In-memory Object Collection
-* **Model**: Programare Orientată pe Obiect (Encapsulation, Models)
+Datele sunt salvate in fisiere text prin proiectul `GestiuneTransport.StocareDate`.
 
----
-*Dezvoltat ca modul central pentru sistemul de logistică GestiuneTransport.*
+- `masini.txt` pentru masini.
+- `soferi.txt` pentru soferi.
+- `intervale.txt` pentru intervale de lucru.

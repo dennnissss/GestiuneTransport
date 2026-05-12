@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestiuneTransport.BusinessLogic\GestiuneTransport.BusinessLogic.csproj" />
+    <ProjectReference Include="..\GestiuneTransport.Models\GestiuneTransport.Models.csproj" />
+    <ProjectReference Include="..\GestiuneTransport.StocareDate\GestiuneTransport.StocareDate.csproj" />
+  </ItemGroup>
+
+</Project>

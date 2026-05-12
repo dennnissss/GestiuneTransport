@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Aplicatie GestiuneTransport - fisiere de date generate la rulare
+masini.txt
+soferi.txt
+intervale.txt
