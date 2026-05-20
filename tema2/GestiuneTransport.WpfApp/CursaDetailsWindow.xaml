@@ -44,6 +44,15 @@
             <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="Cursor" Value="Hand" />
         </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="0" />
+            <Setter Property="Height" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="Focusable" Value="False" />
+        </Style>
     </Window.Resources>
 
     <Grid Margin="22">
@@ -86,7 +95,7 @@
             </Grid>
         </Border>
 
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden">
             <StackPanel>
                 <UniformGrid Columns="2" Margin="0,0,0,16">
                     <Border Style="{StaticResource Card}" Margin="0,0,8,0">

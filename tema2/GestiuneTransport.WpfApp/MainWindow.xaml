@@ -80,7 +80,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Padding" Value="22" />
+            <Setter Property="Padding" Value="18" />
             <Setter Property="Effect">
                 <Setter.Value>
                     <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.14" Color="#27413F" />
@@ -89,9 +89,18 @@
         </Style>
 
         <Style x:Key="MetricCard" TargetType="Border" BasedOn="{StaticResource Card}">
-            <Setter Property="Padding" Value="20" />
-            <Setter Property="Margin" Value="0,0,16,16" />
-            <Setter Property="MinHeight" Value="132" />
+            <Setter Property="Padding" Value="16" />
+            <Setter Property="Margin" Value="0,0,14,14" />
+            <Setter Property="MinHeight" Value="106" />
+        </Style>
+
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="0" />
+            <Setter Property="Height" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="Focusable" Value="False" />
         </Style>
 
         <Style TargetType="TextBox">
@@ -246,6 +255,8 @@
             <Setter Property="ColumnHeaderHeight" Value="42" />
             <Setter Property="RowHeight" Value="54" />
             <Setter Property="CanUserResizeColumns" Value="True" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
@@ -364,7 +375,7 @@
     <Grid Background="#F3F7F7">
         <DockPanel>
             <Border DockPanel.Dock="Top"
-                    Padding="28,18">
+                    Padding="24,14">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                         <GradientStop Color="#0C2C32" Offset="0" />
@@ -429,7 +440,7 @@
             </Menu>
 
             <TabControl x:Name="MainTabControl"
-                        Margin="24"
+                        Margin="18"
                         TabStripPlacement="Left">
                 <TabItem x:Name="DashboardTab" Header="Dashboard">
                     <Grid Margin="18,0,0,0">
@@ -580,13 +591,13 @@
 
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="390" />
+                                <ColumnDefinition Width="420" />
                                 <ColumnDefinition Width="16" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <Border Style="{StaticResource Card}">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                     <StackPanel>
                                         <TextBlock Text="Detalii masina" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
 
@@ -751,13 +762,13 @@
 
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="370" />
+                                <ColumnDefinition Width="400" />
                                 <ColumnDefinition Width="16" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <Border Style="{StaticResource Card}">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                     <StackPanel>
                                         <TextBlock Text="Detalii sofer" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
                                         <TextBlock x:Name="SoferIdLabel" Text="ID sofer" Style="{StaticResource FieldLabel}" />
@@ -897,13 +908,13 @@
 
                         <Grid Grid.Row="2">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="430" />
+                                <ColumnDefinition Width="500" />
                                 <ColumnDefinition Width="16" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <Border Style="{StaticResource Card}">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer VerticalScrollBarVisibility="Hidden">
                                     <StackPanel>
                                         <TextBlock Text="Detalii cursa" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
 
@@ -1091,9 +1102,8 @@
                                             BorderBrush="#D3E3E0"
                                             BorderThickness="1"
                                             CornerRadius="8"
-                                            Padding="16"
-                                            MinHeight="122"
-                                            DataContext="{Binding SelectedItem, ElementName=CurseDataGrid}">
+                                            Padding="14"
+                                            MinHeight="96">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="1.45*" />
@@ -1104,37 +1114,44 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel>
                                                 <TextBlock Text="Cursa selectata" Style="{StaticResource FieldLabel}" />
-                                                <TextBlock Text="{Binding Ruta, TargetNullValue=Selecteaza o cursa din tabel}"
+                                                <TextBlock Text="{Binding CursaSelectataTitlu}"
                                                            Foreground="{StaticResource PrimaryDarkBrush}"
-                                                           FontSize="19"
+                                                           FontSize="17"
                                                            FontWeight="Bold"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding ClientAfisare, TargetNullValue=Client neselectat}"
+                                                <TextBlock Text="{Binding CursaSelectataClient}"
                                                            Foreground="{StaticResource MutedTextBrush}"
                                                            FontWeight="SemiBold"
-                                                           Margin="0,6,0,0" />
+                                                           FontSize="12"
+                                                           Margin="0,5,0,0" />
+                                                <TextBlock Text="{Binding CursaSelectataProgram}"
+                                                           Foreground="#5D706C"
+                                                           FontSize="12"
+                                                           Margin="0,4,0,0" />
                                             </StackPanel>
                                             <StackPanel Grid.Column="2">
                                                 <TextBlock Text="Resurse" Style="{StaticResource FieldLabel}" />
-                                                <TextBlock Text="{Binding MasinaAfisare, TargetNullValue=Masina neselectata}"
+                                                <TextBlock Text="{Binding CursaSelectataResurse}"
                                                            Foreground="#193634"
                                                            FontWeight="SemiBold"
                                                            TextWrapping="Wrap" />
-                                                <TextBlock Text="{Binding SoferAfisare, TargetNullValue=Sofer neselectat}"
+                                                <TextBlock Text="{Binding CursaSelectataSofer}"
                                                            Foreground="{StaticResource MutedTextBrush}"
-                                                           Margin="0,6,0,0"
+                                                           FontSize="12"
+                                                           Margin="0,5,0,0"
                                                            TextWrapping="Wrap" />
                                             </StackPanel>
                                             <StackPanel Grid.Column="4">
                                                 <TextBlock Text="Cost" Style="{StaticResource FieldLabel}" />
-                                                <TextBlock Text="{Binding CostEstimativ, StringFormat={}{0:N0} lei, TargetNullValue=0 lei}"
+                                                <TextBlock Text="{Binding CursaSelectataCost}"
                                                            Foreground="#2E6E9E"
-                                                           FontSize="22"
+                                                           FontSize="20"
                                                            FontWeight="Bold" />
-                                                <TextBlock Text="{Binding Status, TargetNullValue=Status}"
+                                                <TextBlock Text="{Binding CursaSelectataStatus}"
                                                            Foreground="{StaticResource MutedTextBrush}"
                                                            FontWeight="SemiBold"
-                                                           Margin="0,6,0,0" />
+                                                           FontSize="12"
+                                                           Margin="0,5,0,0" />
                                             </StackPanel>
                                         </Grid>
                                     </Border>

@@ -54,6 +54,7 @@ public partial class MainWindow : Window
         CurataFormularCursa();
 
         _initializareCompleta = true;
+        SelecteazaPrimaCursaDisponibila();
     }
 
     private void InitializeazaListeMasini()
@@ -576,6 +577,7 @@ public partial class MainWindow : Window
     {
         if (CurseDataGrid.SelectedItem is Cursa cursa)
         {
+            _viewModel.CursaSelectata = cursa;
             CurseQuickListBox.SelectedItem = cursa;
             IncarcaCursa(cursa);
         }
@@ -590,6 +592,7 @@ public partial class MainWindow : Window
     {
         if (CurseQuickListBox.SelectedItem is Cursa cursa)
         {
+            _viewModel.CursaSelectata = cursa;
             CurseDataGrid.SelectedItem = cursa;
             IncarcaCursa(cursa);
         }
@@ -613,6 +616,7 @@ public partial class MainWindow : Window
         CursaStatusFilterComboBox.SelectedIndex = -1;
         CursaTipFilterComboBox.SelectedIndex = -1;
         _viewModel.ResetFiltreCurse();
+        SelecteazaPrimaCursaDisponibila();
     }
 
     private void CursaDetalii_Click(object sender, RoutedEventArgs e)
@@ -1084,6 +1088,18 @@ public partial class MainWindow : Window
 
         CursaMessagePanel.Visibility = Visibility.Collapsed;
         CursaMessageTextBlock.Text = string.Empty;
+    }
+
+    private void SelecteazaPrimaCursaDisponibila()
+    {
+        if (CurseDataGrid.Items.Count > 0)
+        {
+            CurseDataGrid.SelectedIndex = 0;
+        }
+        else
+        {
+            _viewModel.CursaSelectata = null;
+        }
     }
 
     private void DashboardMenu_Click(object sender, RoutedEventArgs e)

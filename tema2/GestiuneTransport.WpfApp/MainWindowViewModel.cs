@@ -20,6 +20,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public ObservableCollection<Cursa> Curse { get; } = new();
     public ObservableCollection<Masina> MasiniPentruSelectie { get; } = new();
     public ObservableCollection<Sofer> SoferiPentruSelectie { get; } = new();
+    private Cursa? _cursaSelectata;
 
     public IReadOnlyList<MarcaMasina> Marci { get; } = Enum.GetValues<MarcaMasina>();
     public IReadOnlyList<Culoare> Culori { get; } = Enum.GetValues<Culoare>();
@@ -87,6 +88,27 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public string RezumatCurse => Curse.Count == 1
         ? "1 cursa afisata"
         : $"{Curse.Count} curse afisate";
+
+    public Cursa? CursaSelectata
+    {
+        get => _cursaSelectata;
+        set
+        {
+            _cursaSelectata = value;
+            OnPropertyChanged();
+            NotificaCursaSelectata();
+        }
+    }
+
+    public string CursaSelectataTitlu => CursaSelectata?.Ruta ?? "Selecteaza o cursa";
+    public string CursaSelectataClient => CursaSelectata?.ClientAfisare ?? "Detaliile apar aici dupa selectie.";
+    public string CursaSelectataResurse => CursaSelectata?.MasinaAfisare ?? "Masina nealocata";
+    public string CursaSelectataSofer => CursaSelectata?.SoferAfisare ?? "Sofer nealocat";
+    public string CursaSelectataCost => CursaSelectata == null ? "0 lei" : $"{CursaSelectata.CostEstimativ:N0} lei";
+    public string CursaSelectataStatus => CursaSelectata?.Status.ToString() ?? "Neselectata";
+    public string CursaSelectataProgram => CursaSelectata == null
+        ? "Alege o cursa din tabel pentru program."
+        : $"{CursaSelectata.DataPlecare:dd.MM.yyyy HH:mm} - {CursaSelectata.DataSosire:dd.MM.yyyy HH:mm}";
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -363,6 +385,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
         SalveazaCurse();
         ActualizeazaListaCurse(_toateCursele);
+        CursaSelectata = cursa;
         NotificaDashboard();
         return true;
     }
@@ -547,6 +570,17 @@ public class MainWindowViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(RataDisponibilitate));
         OnPropertyChanged(nameof(UrmatoareaCursaTitlu));
         OnPropertyChanged(nameof(UrmatoareaCursaDetalii));
+    }
+
+    private void NotificaCursaSelectata()
+    {
+        OnPropertyChanged(nameof(CursaSelectataTitlu));
+        OnPropertyChanged(nameof(CursaSelectataClient));
+        OnPropertyChanged(nameof(CursaSelectataResurse));
+        OnPropertyChanged(nameof(CursaSelectataSofer));
+        OnPropertyChanged(nameof(CursaSelectataCost));
+        OnPropertyChanged(nameof(CursaSelectataStatus));
+        OnPropertyChanged(nameof(CursaSelectataProgram));
     }
 
     private static bool IntervaleleSeSuprapun(DateTime startA, DateTime sfarsitA, DateTime startB, DateTime sfarsitB)
