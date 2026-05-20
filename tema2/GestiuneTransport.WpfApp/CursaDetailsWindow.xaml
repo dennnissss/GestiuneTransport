@@ -8,16 +8,21 @@
         MinWidth="700"
         WindowStartupLocation="CenterOwner"
         Background="#F4F7F8"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        TextOptions.TextHintingMode="Fixed">
     <Window.Resources>
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#126B61" />
-        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#102B35" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#647571" />
-        <SolidColorBrush x:Key="LineBrush" Color="#DDE7E9" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#0F766E" />
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#0C2C32" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#4B5F5B" />
+        <SolidColorBrush x:Key="LineBrush" Color="#C1D2D0" />
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,4" />
         </Style>

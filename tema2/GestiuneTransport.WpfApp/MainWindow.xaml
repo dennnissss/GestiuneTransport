@@ -12,20 +12,25 @@
         MinWidth="1040"
         WindowStartupLocation="CenterScreen"
         Background="#F4F7F8"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        TextOptions.TextHintingMode="Fixed">
     <Window.Resources>
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#126B61" />
-        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#102B35" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#0F766E" />
+        <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#0C2C32" />
         <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#647571" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#4B5F5B" />
         <SolidColorBrush x:Key="ErrorBrush" Color="#C13F3F" />
-        <SolidColorBrush x:Key="LineBrush" Color="#DDE7E9" />
+        <SolidColorBrush x:Key="LineBrush" Color="#C1D2D0" />
 
         <DrawingBrush x:Key="AppTextureBrush"
                       TileMode="Tile"
                       Viewport="0,0,128,128"
                       ViewportUnits="Absolute"
-                      Opacity="0.95">
+                      Opacity="0.18">
             <DrawingBrush.Drawing>
                 <DrawingGroup>
                     <GeometryDrawing Brush="#F4F7F8">
@@ -59,7 +64,7 @@
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
@@ -78,7 +83,7 @@
             <Setter Property="Padding" Value="18" />
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.12" Color="#27413F" />
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.14" Color="#27413F" />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -92,8 +97,9 @@
             <Setter Property="Height" Value="38" />
             <Setter Property="Padding" Value="10,7" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#F9FCFC" />
-            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="Foreground" Value="#152826" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#A8BDBA" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
@@ -101,20 +107,22 @@
             <Setter Property="Height" Value="38" />
             <Setter Property="Padding" Value="8,5" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#F9FCFC" />
-            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="Foreground" Value="#152826" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#A8BDBA" />
         </Style>
 
         <Style TargetType="DatePicker">
             <Setter Property="Height" Value="38" />
             <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="#152826" />
         </Style>
 
         <Style TargetType="Button">
             <Setter Property="Height" Value="38" />
             <Setter Property="Padding" Value="14,0" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="BorderBrush" Value="#A8BDBA" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Background" Value="#FFFFFF" />
             <Setter Property="Foreground" Value="#203332" />
@@ -182,7 +190,7 @@
             <Setter Property="MinWidth" Value="132" />
             <Setter Property="Padding" Value="16,13" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="#405452" />
+            <Setter Property="Foreground" Value="#263B38" />
             <Setter Property="Margin" Value="0,0,0,6" />
         </Style>
 
@@ -191,14 +199,14 @@
             <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="GridLinesVisibility" Value="Horizontal" />
-            <Setter Property="HorizontalGridLinesBrush" Value="#EDF2F3" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#DDE8E7" />
             <Setter Property="RowHeaderWidth" Value="0" />
             <Setter Property="HeadersVisibility" Value="Column" />
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="#F0F5F5" />
-            <Setter Property="Foreground" Value="#526866" />
+            <Setter Property="Background" Value="#EAF2F1" />
+            <Setter Property="Foreground" Value="#304A46" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Padding" Value="10,8" />
         </Style>
@@ -309,7 +317,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="{StaticResource AppTextureBrush}">
+    <Grid Background="#F3F7F7">
         <DockPanel>
             <Border DockPanel.Dock="Top"
                     Background="{StaticResource PrimaryDarkBrush}"

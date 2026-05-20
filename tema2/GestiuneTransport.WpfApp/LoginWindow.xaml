@@ -8,16 +8,21 @@
         MinWidth="700"
         WindowStartupLocation="CenterScreen"
         Background="#F4F7F8"
-        FontFamily="Segoe UI">
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        TextOptions.TextHintingMode="Fixed">
     <Window.Resources>
-        <SolidColorBrush x:Key="PrimaryBrush" Color="#126B61" />
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#0F766E" />
         <SolidColorBrush x:Key="PrimaryDarkBrush" Color="#102B35" />
-        <SolidColorBrush x:Key="MutedTextBrush" Color="#647571" />
-        <SolidColorBrush x:Key="LineBrush" Color="#DDE7E9" />
+        <SolidColorBrush x:Key="MutedTextBrush" Color="#465A56" />
+        <SolidColorBrush x:Key="LineBrush" Color="#B8CBC9" />
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
-            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
@@ -30,7 +35,7 @@
             <Setter Property="Padding" Value="26" />
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.12" Color="#27413F" />
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.18" Color="#27413F" />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -39,8 +44,9 @@
             <Setter Property="Height" Value="40" />
             <Setter Property="Padding" Value="10,7" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#F9FCFC" />
-            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="Foreground" Value="#172B2A" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#9FB9B6" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
@@ -48,8 +54,9 @@
             <Setter Property="Height" Value="40" />
             <Setter Property="Padding" Value="10,7" />
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="Background" Value="#F9FCFC" />
-            <Setter Property="BorderBrush" Value="#C9D8D8" />
+            <Setter Property="Foreground" Value="#172B2A" />
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#9FB9B6" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
 
@@ -71,9 +78,9 @@
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F4F7F8" Offset="0" />
-                <GradientStop Color="#E7F1F0" Offset="0.58" />
-                <GradientStop Color="#F7E8C6" Offset="1" />
+                <GradientStop Color="#F1F7F6" Offset="0" />
+                <GradientStop Color="#E8F2F1" Offset="0.62" />
+                <GradientStop Color="#F2E6C9" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
 
@@ -93,6 +100,7 @@
                 <TextBlock Text="Panou operational pentru flota, soferi si curse."
                            FontSize="16"
                            Foreground="{StaticResource MutedTextBrush}"
+                           FontWeight="Medium"
                            TextWrapping="Wrap"
                            Margin="0,12,0,0" />
                 <Border Background="#143E43"
@@ -122,11 +130,12 @@
                     VerticalAlignment="Center">
                 <StackPanel>
                     <TextBlock Text="Autentificare"
-                               FontSize="24"
+                               FontSize="25"
                                FontWeight="Bold"
                                Foreground="{StaticResource PrimaryDarkBrush}" />
                     <TextBlock Text="Introdu datele pentru acces in aplicatie."
                                Foreground="{StaticResource MutedTextBrush}"
+                               FontWeight="Medium"
                                Margin="0,6,0,22" />
 
                     <TextBlock Text="Utilizator" Style="{StaticResource FieldLabel}" />
@@ -156,6 +165,7 @@
 
                     <Button x:Name="LoginButton"
                             Content="Intra in aplicatie"
+                            FontSize="14"
                             Style="{StaticResource PrimaryButton}"
                             IsDefault="True"
                             Click="LoginButton_Click" />
