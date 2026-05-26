@@ -25,6 +25,10 @@
         <SolidColorBrush x:Key="MutedTextBrush" Color="#4B5F5B" />
         <SolidColorBrush x:Key="ErrorBrush" Color="#C13F3F" />
         <SolidColorBrush x:Key="LineBrush" Color="#C1D2D0" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#EAF7F4" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#102B35" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#EAF7F4" />
+        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#102B35" />
 
         <DrawingBrush x:Key="AppTextureBrush"
                       TileMode="Tile"
@@ -255,6 +259,7 @@
             <Setter Property="ColumnHeaderHeight" Value="42" />
             <Setter Property="RowHeight" Value="54" />
             <Setter Property="CanUserResizeColumns" Value="True" />
+            <Setter Property="SelectionUnit" Value="FullRow" />
             <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
             <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Hidden" />
         </Style>
@@ -267,11 +272,30 @@
         </Style>
 
         <Style TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent" />
             <Setter Property="MinHeight" Value="54" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F4FAF8" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EAF7F4" />
+                    <Setter Property="Foreground" Value="#102B35" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#193634" />
             <Style.Triggers>
                 <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#DCEFEB" />
+                    <Setter Property="Background" Value="Transparent" />
                     <Setter Property="Foreground" Value="#102B35" />
+                    <Setter Property="BorderBrush" Value="Transparent" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -709,7 +733,14 @@
                                               CanUserAddRows="False"
                                               IsReadOnly="True"
                                               SelectionMode="Single"
+                                              PreviewMouseRightButtonDown="DataGrid_PreviewMouseRightButtonDown"
                                               SelectionChanged="MasiniDataGrid_SelectionChanged">
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Editeaza masina" Click="EditeazaMasinaContext_Click" />
+                                                <MenuItem Header="Sterge masina" Click="StergeMasinaContext_Click" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Nr." Binding="{Binding NrInmatriculare}" Width="110" />
                                             <DataGridTextColumn Header="Marca" Binding="{Binding Marca}" Width="115" />
@@ -842,7 +873,14 @@
                                               CanUserAddRows="False"
                                               IsReadOnly="True"
                                               SelectionMode="Single"
+                                              PreviewMouseRightButtonDown="DataGrid_PreviewMouseRightButtonDown"
                                               SelectionChanged="SoferDataGrid_SelectionChanged">
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Editeaza sofer" Click="EditeazaSoferContext_Click" />
+                                                <MenuItem Header="Sterge sofer" Click="StergeSoferContext_Click" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="70" />
                                             <DataGridTextColumn Header="Nume" Binding="{Binding Nume}" Width="*" />
@@ -1174,7 +1212,16 @@
                                               ColumnHeaderHeight="44"
                                               HorizontalScrollBarVisibility="Disabled"
                                               MouseDoubleClick="CurseDataGrid_MouseDoubleClick"
+                                              PreviewMouseRightButtonDown="DataGrid_PreviewMouseRightButtonDown"
                                               SelectionChanged="CurseDataGrid_SelectionChanged">
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Editeaza cursa" Click="EditeazaCursaContext_Click" />
+                                                <MenuItem Header="Sterge cursa" Click="StergeCursaContext_Click" />
+                                                <Separator />
+                                                <MenuItem Header="Vezi detalii" Click="VeziDetaliiCursaContext_Click" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                         <DataGrid.Columns>
                                             <DataGridTemplateColumn Header="Cursa" Width="2.1*">
                                                 <DataGridTemplateColumn.CellTemplate>

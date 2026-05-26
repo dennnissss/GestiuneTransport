@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using GestiuneTransport.Models;
@@ -176,6 +177,26 @@ public partial class MainWindow : Window
         {
             IncarcaMasina(masina);
         }
+    }
+
+    private void EditeazaMasinaContext_Click(object sender, RoutedEventArgs e)
+    {
+        if (MasiniDataGrid.SelectedItem is not Masina masina)
+        {
+            AfiseazaToast("Selecteaza o masina pentru editare.");
+            return;
+        }
+
+        IncarcaMasina(masina);
+        MainTabControl.SelectedItem = MasiniTab;
+        NrInmatriculareTextBox.Focus();
+        NrInmatriculareTextBox.SelectAll();
+        AfiseazaToast("Masina este pregatita pentru editare.");
+    }
+
+    private void StergeMasinaContext_Click(object sender, RoutedEventArgs e)
+    {
+        StergeMasina_Click(sender, e);
     }
 
     private void MasinaFiltru_Changed(object sender, EventArgs e)
@@ -403,6 +424,26 @@ public partial class MainWindow : Window
         }
     }
 
+    private void EditeazaSoferContext_Click(object sender, RoutedEventArgs e)
+    {
+        if (SoferDataGrid.SelectedItem is not Sofer sofer)
+        {
+            AfiseazaToast("Selecteaza un sofer pentru editare.");
+            return;
+        }
+
+        IncarcaSofer(sofer);
+        MainTabControl.SelectedItem = SoferiTab;
+        SoferNumeTextBox.Focus();
+        SoferNumeTextBox.SelectAll();
+        AfiseazaToast("Soferul este pregatit pentru editare.");
+    }
+
+    private void StergeSoferContext_Click(object sender, RoutedEventArgs e)
+    {
+        StergeSofer_Click(sender, e);
+    }
+
     private void SoferFiltru_Changed(object sender, EventArgs e)
     {
         if (!_initializareCompleta)
@@ -598,6 +639,32 @@ public partial class MainWindow : Window
         }
     }
 
+    private void EditeazaCursaContext_Click(object sender, RoutedEventArgs e)
+    {
+        if (CurseDataGrid.SelectedItem is not Cursa cursa)
+        {
+            AfiseazaToast("Selecteaza o cursa pentru editare.");
+            return;
+        }
+
+        _viewModel.CursaSelectata = cursa;
+        IncarcaCursa(cursa);
+        MainTabControl.SelectedItem = CurseTab;
+        ClientTextBox.Focus();
+        ClientTextBox.SelectAll();
+        AfiseazaToast("Cursa este pregatita pentru editare.");
+    }
+
+    private void StergeCursaContext_Click(object sender, RoutedEventArgs e)
+    {
+        StergeCursa_Click(sender, e);
+    }
+
+    private void VeziDetaliiCursaContext_Click(object sender, RoutedEventArgs e)
+    {
+        DeschideDetaliiCursaSelectata();
+    }
+
     private void CursaFiltru_Changed(object sender, EventArgs e)
     {
         if (!_initializareCompleta)
@@ -617,6 +684,24 @@ public partial class MainWindow : Window
         CursaTipFilterComboBox.SelectedIndex = -1;
         _viewModel.ResetFiltreCurse();
         SelecteazaPrimaCursaDisponibila();
+    }
+
+    private void DataGrid_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not DataGrid dataGrid)
+        {
+            return;
+        }
+
+        DataGridRow? row = GasesteParinte<DataGridRow>(e.OriginalSource as DependencyObject);
+        if (row == null)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        row.Focus();
+        dataGrid.SelectedItem = row.Item;
     }
 
     private void CursaDetalii_Click(object sender, RoutedEventArgs e)
@@ -969,6 +1054,22 @@ public partial class MainWindow : Window
             _toastTimer?.Stop();
         };
         _toastTimer.Start();
+    }
+
+    private static T? GasesteParinte<T>(DependencyObject? element)
+        where T : DependencyObject
+    {
+        while (element != null)
+        {
+            if (element is T match)
+            {
+                return match;
+            }
+
+            element = VisualTreeHelper.GetParent(element);
+        }
+
+        return null;
     }
 
     private static bool CitesteDouble(string text, out double valoare)
